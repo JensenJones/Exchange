@@ -9,7 +9,7 @@ public class Order {
         this.orderStatus = orderStatus;
     }
 
-    public int getID(){
+    public int getId(){
         return id;
     }
 
