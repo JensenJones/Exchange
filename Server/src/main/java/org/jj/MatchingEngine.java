@@ -2,12 +2,13 @@ package org.jj;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public interface MatchingEngine {
-    Order createOrder();
 
-    @Nullable
-    Order getOrder(int id);
+    OrderState createOrder(double price, double quantity, BuySell buySell);
 
-    @Nullable
-    Order cancelOrder(int id);
+    @Nullable OrderState getOrder(UUID id);
+
+    @Nullable OrderState cancelOrder(UUID id);
 }

@@ -1,23 +1,25 @@
 package org.jj;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 public class Order {
-    private final int id;
-    private final OrderStatus orderStatus;
+    private final UUID id;
+    private final LocalDateTime dateTime;
+    private final double price;
+    private final double quantity;
+    private final double quantityFilled = 0;
+    private final BuySell buySell;
 
-    public Order(int id, OrderStatus orderStatus) {
+    public Order(UUID id, LocalDateTime time, double price, double quantity, BuySell type) {
         this.id = id;
-        this.orderStatus = orderStatus;
+        this.dateTime = time;
+        this.price = price;
+        this.quantity = quantity;
+        this.buySell = type;
     }
 
-    public int getId(){
+    public UUID getId(){
         return id;
-    }
-
-    public OrderStatus getOrderStatus() {
-        return orderStatus;
-    }
-
-    public Order changeOrderStatus(OrderStatus orderStatus) {
-        return new Order(id, orderStatus);
     }
 }

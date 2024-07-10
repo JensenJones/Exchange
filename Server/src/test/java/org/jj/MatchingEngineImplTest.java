@@ -3,11 +3,15 @@ package org.jj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MatchingEngineImplTest {
 
     private MatchingEngineImpl subject;
+
+
 
     @BeforeEach
     void setup() {
@@ -16,51 +20,51 @@ class MatchingEngineImplTest {
 
     @Test
     void shouldCreateOrder() {
-        Order order = subject.createOrder();
-
-        assertThat(order.getId()).isEqualTo(1);
-        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.NEW);
+        OrderState orderState = subject.createOrder(1, 10, BuySell.BUY);
+        assertThat(orderState).isNotNull();
+        assertThat(orderState.getOrderStatus()).isEqualTo(OrderStatus.NEW);
     }
 
     @Test
     void shouldCreateUniqueOrders() {
-        Order order1 = subject.createOrder();
-        Order order2 = subject.createOrder();
-        Order order3 = subject.createOrder();
+        OrderState order1 = subject.createOrder(1, 10, BuySell.BUY);
+        OrderState order2 = subject.createOrder(1, 10, BuySell.BUY);
+        OrderState order3 = subject.createOrder(1, 10, BuySell.BUY);
 
-        assertThat(order1.getId()).isEqualTo(1);
-        assertThat(order2.getId()).isEqualTo(2);
-        assertThat(order3.getId()).isEqualTo(3);
+        assertThat(order1.getOrder().getId()).isNotIn(order2.getOrder().getId(), order3.getOrder().getId());
+        assertThat(order2.getOrder().getId()).isNotIn(order3.getOrder().getId());
     }
 
     @Test
     void shouldNotFindNonExistentOrder() {
-        Order lookedUpOrder = subject.getOrder(1000);
+        OrderState lookedUpOrder = subject.getOrder(UUID.randomUUID());
 
         assertThat(lookedUpOrder).isNull();
     }
 
     @Test
     void shouldFindExistingOrder() {
-        Order order = subject.createOrder();
+        OrderState order = subject.createOrder(1, 10, BuySell.BUY);
 
-        Order foundOrder = subject.getOrder(order.getId());
+        OrderState foundOrder = subject.getOrder(order.getOrder().getId());
 
-        assertThat(foundOrder.getId()).isEqualTo(order.getId());
+        assert foundOrder != null;
+        assertThat(foundOrder.getOrder().getId()).isEqualTo(order.getOrder().getId());
     }
 
     @Test
     void shouldCancelOrder() {
-        Order order = subject.createOrder();
+        OrderState order = subject.createOrder(1, 10, BuySell.BUY);
 
-        order = subject.cancelOrder(order.getId());
+        order = subject.cancelOrder(order.getOrder().getId());
 
+        assert order != null;
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
     }
 
     @Test
     void cancelNonExistentOrder() {
-        Order order = subject.cancelOrder(123);
+        OrderState order = subject.cancelOrder(UUID.randomUUID());
         assertThat(order).isNull();
     }
 }

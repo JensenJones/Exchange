@@ -4,33 +4,37 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MatchingEngineImpl implements MatchingEngine {
-    private final Map<Integer, Order> orders = new HashMap<>();
-    private int lastId = 0;
+
+    private final Map<UUID, OrderState> orders = new HashMap<>();
+    private final TimestampProvider timestampProvider = new TimestampProvider();
+    private final IdProvider idProvider = new IdProvider();
 
     @Override
-    public Order createOrder() {
-        lastId++;
-        Order order = new Order(lastId, OrderStatus.NEW);
-        orders.put(lastId, order);
-        return order;
+    public OrderState createOrder(double price, double quantity, BuySell buySell) {
+        UUID uuid = idProvider.getUUID();
+        Order order = new Order(uuid, timestampProvider.getTimestamp(), price, quantity, buySell);
+        OrderState orderState = new OrderState(order, OrderStatus.NEW);
+        orders.put(uuid, orderState);
+        return orderState;
     }
 
     @Nullable
     @Override
-    public Order getOrder(int id) {
+    public OrderState getOrder(UUID id) {
         return orders.get(id);
     }
 
     @Nullable
     @Override
-    public Order cancelOrder(int id) {
-        Order order = orders.get(id);
-        if (order == null) {
+    public OrderState cancelOrder(UUID id) {
+        OrderState orderState = orders.get(id);
+        if (orderState == null) {
             return null;
         }
-        order = order.changeOrderStatus(OrderStatus.CANCELED);
-        return order;
+        orderState.ChangeOrderStatus(OrderStatus.CANCELED);
+        return orderState;
     }
 }
