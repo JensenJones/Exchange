@@ -2,10 +2,12 @@ package org.jj;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 class MatchingEngineImplTest {
 
@@ -15,7 +17,12 @@ class MatchingEngineImplTest {
 
     @BeforeEach
     void setup() {
-        subject = new MatchingEngineImpl();
+        TimestampProvider timestampProvider = Mockito.mock(TimestampProvider.class);
+        when(timestampProvider.getTimestamp()).thenReturn(10L);
+
+        IdProvider idProvider = Mockito.mock(IdProvider.class);
+        when(idProvider.getUUID()).thenReturn(new UUID(0x1234567890abcdefL, 0xfedcba0987654321L));
+        subject = new MatchingEngineImpl(timestampProvider, idProvider);
     }
 
     @Test
@@ -28,11 +35,12 @@ class MatchingEngineImplTest {
     @Test
     void shouldCreateUniqueOrders() {
         OrderState order1 = subject.createOrder(1, 10, BuySell.BUY);
-        OrderState order2 = subject.createOrder(1, 10, BuySell.BUY);
-        OrderState order3 = subject.createOrder(1, 10, BuySell.BUY);
+        OrderState order2 = subject.createOrder(2, 20, BuySell.BUY);
 
-        assertThat(order1.getOrder().getId()).isNotIn(order2.getOrder().getId(), order3.getOrder().getId());
-        assertThat(order2.getOrder().getId()).isNotIn(order3.getOrder().getId());
+        assertThat(order1.getOrder().getPrice()).isEqualTo(1);
+        assertThat(order2.getOrder().getPrice()).isEqualTo(2);
+        assertThat(order1.getOrder().getQuantity()).isEqualTo(10);
+        assertThat(order2.getOrder().getQuantity()).isEqualTo(20);
     }
 
     @Test
