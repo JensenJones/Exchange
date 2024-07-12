@@ -3,7 +3,7 @@ package org.jj;
 public enum OrderStatus {
     REJECTED,
     NEW,
-    Filled,
+    FILLED,
     PARTIALLY_FILLED,
     CANCELED
 }

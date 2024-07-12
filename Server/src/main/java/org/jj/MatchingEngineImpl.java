@@ -34,32 +34,32 @@ public class MatchingEngineImpl implements MatchingEngine {
         return orderState;
     }
 
-    private void matchOrder(OrderState orderState) {
+    private void matchOrder(OrderState newOrderState) {
         // TODO Can first check if another order on same side with same price exists and if so just add to the active buy orders.
-        if (orderState.getOrder().getBuySell() == BuySell.BUY) {
+        if (newOrderState.getOrder().getBuySell() == BuySell.BUY) {
             List<Double> prices = new ArrayList<>(activeSellOrders.keySet());
             Collections.sort(prices);
 
             for (double price : prices) {
-                if (price <= orderState.getOrder().getPrice()) {
+                if (price <= newOrderState.getOrder().getPrice()) {
                     for (OrderState otherSide : activeSellOrders.get(price)) {
-                        if (trade(orderState, otherSide)) {
+                        if (trade(newOrderState, otherSide)) {
                             return;
                         }
                     }
                 }
             }
             System.out.println("DEBUG SELL ORDER ADDED TO activeSellOrders");
-            activeBuyOrders.computeIfAbsent(orderState.getOrder().getPrice(), k -> new LinkedList<>()).add(orderState);
+            activeBuyOrders.computeIfAbsent(newOrderState.getOrder().getPrice(), k -> new LinkedList<>()).add(newOrderState);
         } else { // BuySell == BuySell.SELL
             List<Double> prices = new ArrayList<>(activeBuyOrders.keySet());
             Collections.sort(prices);
             Collections.reverse(prices);
 
             for (double price : prices) {
-                if (price >= orderState.getOrder().getPrice()) {
+                if (price >= newOrderState.getOrder().getPrice()) {
                     for (OrderState otherSide : activeBuyOrders.get(price)) {
-                        if (trade(orderState, otherSide)) {
+                        if (trade(newOrderState, otherSide)) {
                             return;
                         }
                     }
@@ -68,30 +68,36 @@ public class MatchingEngineImpl implements MatchingEngine {
                 }
             }
             System.out.println("DEBUG SELL ORDER ADDED TO activeSellOrders");
-            activeSellOrders.computeIfAbsent(orderState.getOrder().getPrice(), k -> new LinkedList<>()).add(orderState);
+            activeSellOrders.computeIfAbsent(newOrderState.getOrder().getPrice(), k -> new LinkedList<>()).add(newOrderState);
         }
     }
 
-    private boolean trade(OrderState orderState, OrderState otherSide) {
-        // Returns true if orderState is fulfilled
-        double tradeQuantity = Math.min(orderState.getOrder().getQuantity() - orderState.getOrder().getQuantityFilled(),
-                                        otherSide.getOrder().getQuantity() - otherSide.getOrder().getQuantityFilled());
+    private boolean trade(OrderState newOrderState, OrderState otherSide) {
+        // Returns true if newOrderState is fulfilled
+        double tradeQuantity = Math.min(newOrderState.getOrder().getQuantity() - newOrderState.getOrder().getQuantityFilled(),
+                                            otherSide.getOrder().getQuantity() - otherSide.getOrder().getQuantityFilled());
         System.out.println("DEBUG trade quantity = " + tradeQuantity);
 
         // TODO Need to send money to people involved somehow
 
-        // TODO TO FIX --> Not updating the order status
-        orderState = updateOrderState(orderState, tradeQuantity);
-        otherSide = updateOrderState(otherSide, tradeQuantity);
+        OrderState updatedOrderState = updateOrderState(newOrderState, tradeQuantity);
+        OrderState updatedOtherSide = updateOrderState(otherSide, tradeQuantity);
 
-        return orderState.getOrderStatus() == OrderStatus.Filled;
+        double tradingPrice = newOrderState.getOrder().getPrice();
+        if (otherSide.getOrder().getBuySell() == BuySell.SELL) {
+            activeSellOrders.get(tradingPrice).set(activeSellOrders.get(tradingPrice).indexOf(otherSide), updatedOtherSide);
+        } else {
+            activeBuyOrders.get(tradingPrice).set(activeBuyOrders.get(tradingPrice).indexOf(otherSide), updatedOtherSide);
+        }
+        allOrders.put(otherSide.getOrder().getUuid(), updatedOtherSide);
+        return updatedOrderState.getOrderStatus() == OrderStatus.FILLED;
     }
 
-    private static OrderState updateOrderState(OrderState orderState, double tradeQuantity) {
-        Order updatedOrder = orderState.getOrder().fillOrder(tradeQuantity);
+    private static OrderState updateOrderState(OrderState newOrderState, double tradeQuantity) {
+        Order updatedOrder = newOrderState.getOrder().fillOrder(tradeQuantity);
         OrderStatus updatedOrderStatus;
         if (updatedOrder.getQuantityFilled() == updatedOrder.getQuantity()) {
-            updatedOrderStatus = OrderStatus.Filled;
+            updatedOrderStatus = OrderStatus.FILLED;
         } else {
             updatedOrderStatus = OrderStatus.PARTIALLY_FILLED;
         }
@@ -112,7 +118,7 @@ public class MatchingEngineImpl implements MatchingEngine {
         if (orderState == null ||
             orderState.getOrderStatus() == OrderStatus.REJECTED ||
             orderState.getOrderStatus() == OrderStatus.CANCELED ||
-            orderState.getOrderStatus() == OrderStatus.Filled) {
+            orderState.getOrderStatus() == OrderStatus.FILLED) {
             return null;
         }
 
