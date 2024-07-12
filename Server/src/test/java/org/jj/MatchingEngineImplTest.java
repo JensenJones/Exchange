@@ -30,6 +30,9 @@ class MatchingEngineImplTest {
         OrderState orderState = subject.createOrder(1, 10, BuySell.BUY);
         assertThat(orderState).isNotNull();
         assertThat(orderState.getOrderStatus()).isEqualTo(OrderStatus.NEW);
+        assertThat(orderState.getOrder().getQuantity()).isEqualTo(10);
+        assertThat(orderState.getOrder().getPrice()).isEqualTo(1);
+        assertThat(orderState.getOrder().getBuySell()).isEqualTo(BuySell.BUY);
     }
 
     @Test
@@ -74,5 +77,23 @@ class MatchingEngineImplTest {
     void cancelNonExistentOrder() {
         OrderState order = subject.cancelOrder(UUID.randomUUID());
         assertThat(order).isNull();
+    }
+
+    @Test
+    void shouldFillMatchingOrders() {
+        OrderState sellOrder = subject.createOrder(1, 10, BuySell.SELL);
+        OrderState buyOrder = subject.createOrder(1, 10, BuySell.BUY);
+
+        sellOrder = subject.getOrder(sellOrder.getOrder().getId());
+        buyOrder = subject.getOrder(buyOrder.getOrder().getId());
+
+        assert sellOrder != null;
+        assert buyOrder != null;
+        assertThat(sellOrder.getOrderStatus()).isEqualTo(OrderStatus.Filled);
+        assertThat(buyOrder.getOrderStatus()).isEqualTo(OrderStatus.Filled);
+    }
+
+    @Test
+    void name() {
     }
 }
