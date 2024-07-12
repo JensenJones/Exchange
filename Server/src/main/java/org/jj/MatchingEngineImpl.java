@@ -1,10 +1,14 @@
 package org.jj;
 
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class MatchingEngineImpl implements MatchingEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatchingEngineImpl.class);
+
     private final Map<UUID, OrderState> allOrders = new HashMap<>();
     private final Map<Double, List<OrderState>> activeBuyOrders = new HashMap<>();
     private final Map<Double, List<OrderState>> activeSellOrders = new HashMap<>();
@@ -37,7 +41,7 @@ public class MatchingEngineImpl implements MatchingEngine {
             Collections.sort(prices);
 
             for (double price : prices) {
-                if (price < orderState.getOrder().getPrice()) {
+                if (price <= orderState.getOrder().getPrice()) {
                     for (OrderState otherSide : activeSellOrders.get(price)) {
                         if (trade(orderState, otherSide)) {
                             return;
@@ -45,6 +49,7 @@ public class MatchingEngineImpl implements MatchingEngine {
                     }
                 }
             }
+            System.out.println("DEBUG SELL ORDER ADDED TO activeSellOrders");
             activeBuyOrders.computeIfAbsent(orderState.getOrder().getPrice(), k -> new LinkedList<>()).add(orderState);
         } else { // BuySell == BuySell.SELL
             List<Double> prices = new ArrayList<>(activeBuyOrders.keySet());
@@ -52,14 +57,17 @@ public class MatchingEngineImpl implements MatchingEngine {
             Collections.reverse(prices);
 
             for (double price : prices) {
-                if (price > orderState.getOrder().getPrice()) {
+                if (price >= orderState.getOrder().getPrice()) {
                     for (OrderState otherSide : activeBuyOrders.get(price)) {
                         if (trade(orderState, otherSide)) {
                             return;
                         }
                     }
+                } else {
+                    break;
                 }
             }
+            System.out.println("DEBUG SELL ORDER ADDED TO activeSellOrders");
             activeSellOrders.computeIfAbsent(orderState.getOrder().getPrice(), k -> new LinkedList<>()).add(orderState);
         }
     }
@@ -68,10 +76,11 @@ public class MatchingEngineImpl implements MatchingEngine {
         // Returns true if orderState is fulfilled
         double tradeQuantity = Math.min(orderState.getOrder().getQuantity() - orderState.getOrder().getQuantityFilled(),
                                         otherSide.getOrder().getQuantity() - otherSide.getOrder().getQuantityFilled());
-        
-        // Need to send money to people involved somehow
+        System.out.println("DEBUG trade quantity = " + tradeQuantity);
 
-        // I THINK HERE IS WHERE TRADE DOESN'T GET SAVED
+        // TODO Need to send money to people involved somehow
+
+        // TODO TO FIX --> Not updating the order status
         orderState = updateOrderState(orderState, tradeQuantity);
         otherSide = updateOrderState(otherSide, tradeQuantity);
 

@@ -3,15 +3,15 @@ package org.jj;
 import java.util.UUID;
 
 public class Order {
-    private final UUID id;
+    private final UUID uuid;
     private final BuySell buySell;
     private final long time;
     private final double price;
     private final double quantity;
     private final double quantityFilled;
 
-    public Order(UUID id, BuySell type, long time, double price, double quantity) {
-        this.id = id;
+    public Order(UUID uuid, BuySell type, long time, double price, double quantity) {
+        this.uuid = uuid;
         this.time = time;
         this.price = price;
         this.quantity = quantity;
@@ -19,8 +19,8 @@ public class Order {
         this.quantityFilled = 0;
     }
 
-    public Order(UUID id, BuySell buySell, long time, double price, double quantity, double quantityFilled) {
-        this.id = id;
+    public Order(UUID uuid, BuySell buySell, long time, double price, double quantity, double quantityFilled) {
+        this.uuid = uuid;
         this.time = time;
         this.price = price;
         this.quantity = quantity;
@@ -28,8 +28,8 @@ public class Order {
         this.quantityFilled = quantityFilled;
     }
 
-    public UUID getId(){
-        return id;
+    public UUID getUuid(){
+        return uuid;
     }
 
     public long getTime() {
@@ -54,7 +54,7 @@ public class Order {
 
     public Order fillOrder(double quantityTrading) {
         if (quantityTrading <= quantity - quantityFilled) {
-            return new Order(id, buySell, time, price, quantity, quantityFilled + quantityTrading);
+            return new Order(uuid, buySell, time, price, quantity, quantityFilled + quantityTrading);
         }
         throw new IllegalArgumentException("Trading quantity exceeds available quantity");
     }

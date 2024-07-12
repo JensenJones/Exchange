@@ -57,17 +57,17 @@ class MatchingEngineImplTest {
     void shouldFindExistingOrder() {
         OrderState order = subject.createOrder(1, 10, BuySell.BUY);
 
-        OrderState foundOrder = subject.getOrder(order.getOrder().getId());
+        OrderState foundOrder = subject.getOrder(order.getOrder().getUuid());
 
         assert foundOrder != null;
-        assertThat(foundOrder.getOrder().getId()).isEqualTo(order.getOrder().getId());
+        assertThat(foundOrder.getOrder().getUuid()).isEqualTo(order.getOrder().getUuid());
     }
 
     @Test
     void shouldCancelOrder() {
         OrderState order = subject.createOrder(1, 10, BuySell.BUY);
 
-        order = subject.cancelOrder(order.getOrder().getId());
+        order = subject.cancelOrder(order.getOrder().getUuid());
 
         assert order != null;
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
@@ -84,16 +84,12 @@ class MatchingEngineImplTest {
         OrderState sellOrder = subject.createOrder(1, 10, BuySell.SELL);
         OrderState buyOrder = subject.createOrder(1, 10, BuySell.BUY);
 
-        sellOrder = subject.getOrder(sellOrder.getOrder().getId());
-        buyOrder = subject.getOrder(buyOrder.getOrder().getId());
+        sellOrder = subject.getOrder(sellOrder.getOrder().getUuid());
+        buyOrder = subject.getOrder(buyOrder.getOrder().getUuid());
 
         assert sellOrder != null;
         assert buyOrder != null;
         assertThat(sellOrder.getOrderStatus()).isEqualTo(OrderStatus.Filled);
         assertThat(buyOrder.getOrderStatus()).isEqualTo(OrderStatus.Filled);
-    }
-
-    @Test
-    void name() {
     }
 }
