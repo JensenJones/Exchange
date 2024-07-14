@@ -89,7 +89,7 @@ class MatchingEngineImplTest {
 
         assert sellOrder != null;
         assert buyOrder != null;
-        assertThat(sellOrder.getOrderStatus()).isEqualTo(OrderStatus.FILLED);
-        assertThat(buyOrder.getOrderStatus()).isEqualTo(OrderStatus.FILLED);
+        assertThat(sellOrder.getOrder().getQuantityFilled()).isEqualTo(10);
+        assertThat(buyOrder.getOrder().getQuantityFilled()).isEqualTo(10);
     }
 }

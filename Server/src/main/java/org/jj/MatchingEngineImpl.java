@@ -13,7 +13,7 @@ public class MatchingEngineImpl implements MatchingEngine {
     private final Map<Double, List<OrderState>> activeBuyOrders = new HashMap<>();
     private final Map<Double, List<OrderState>> activeSellOrders = new HashMap<>();
 
-    TimestampProvider timestampProvider;
+    private final TimestampProvider timestampProvider;
     private final IdProvider idProvider;
 
     public MatchingEngineImpl(TimestampProvider timestampProvider, IdProvider idProvider) {
@@ -22,7 +22,7 @@ public class MatchingEngineImpl implements MatchingEngine {
     }
 
     @Override
-    public OrderState createOrder(double price, double quantity, BuySell buySell) {
+    public OrderState createOrder(long price, double quantity, BuySell buySell) {
         UUID uuid = idProvider.getUUID();
         Order order = new Order(uuid, buySell, timestampProvider.getTimestamp(), price, quantity);
         OrderState orderState = new OrderState(order, OrderStatus.NEW);
@@ -43,13 +43,13 @@ public class MatchingEngineImpl implements MatchingEngine {
             for (double price : prices) {
                 if (price <= newOrderState.getOrder().getPrice()) {
                     for (OrderState otherSide : activeSellOrders.get(price)) {
-                        if (trade(newOrderState, otherSide)) {
+                        newOrderState = match(newOrderState, otherSide);
+                        if (newOrderState.getOrderStatus() == OrderStatus.FILLED) {
                             return;
                         }
                     }
                 }
             }
-            System.out.println("DEBUG SELL ORDER ADDED TO activeSellOrders");
             activeBuyOrders.computeIfAbsent(newOrderState.getOrder().getPrice(), k -> new LinkedList<>()).add(newOrderState);
         } else { // BuySell == BuySell.SELL
             List<Double> prices = new ArrayList<>(activeBuyOrders.keySet());
@@ -59,7 +59,8 @@ public class MatchingEngineImpl implements MatchingEngine {
             for (double price : prices) {
                 if (price >= newOrderState.getOrder().getPrice()) {
                     for (OrderState otherSide : activeBuyOrders.get(price)) {
-                        if (trade(newOrderState, otherSide)) {
+                        newOrderState = match(newOrderState, otherSide);
+                        if (newOrderState.getOrderStatus() == OrderStatus.FILLED) {
                             return;
                         }
                     }
@@ -67,16 +68,13 @@ public class MatchingEngineImpl implements MatchingEngine {
                     break;
                 }
             }
-            System.out.println("DEBUG SELL ORDER ADDED TO activeSellOrders");
             activeSellOrders.computeIfAbsent(newOrderState.getOrder().getPrice(), k -> new LinkedList<>()).add(newOrderState);
         }
     }
 
-    private boolean trade(OrderState newOrderState, OrderState otherSide) {
-        // Returns true if newOrderState is fulfilled
+    private OrderState match(OrderState newOrderState, OrderState otherSide) {
         double tradeQuantity = Math.min(newOrderState.getOrder().getQuantity() - newOrderState.getOrder().getQuantityFilled(),
                                             otherSide.getOrder().getQuantity() - otherSide.getOrder().getQuantityFilled());
-        System.out.println("DEBUG trade quantity = " + tradeQuantity);
 
         // TODO Need to send money to people involved somehow
 
@@ -90,7 +88,7 @@ public class MatchingEngineImpl implements MatchingEngine {
             activeBuyOrders.get(tradingPrice).set(activeBuyOrders.get(tradingPrice).indexOf(otherSide), updatedOtherSide);
         }
         allOrders.put(otherSide.getOrder().getUuid(), updatedOtherSide);
-        return updatedOrderState.getOrderStatus() == OrderStatus.FILLED;
+        return updatedOrderState;
     }
 
     private static OrderState updateOrderState(OrderState newOrderState, double tradeQuantity) {
@@ -129,7 +127,7 @@ public class MatchingEngineImpl implements MatchingEngine {
             activeSellOrders.get(orderState.getOrder().getPrice()).remove(orderState);
         }
 
-        orderState.ChangeOrderStatus(OrderStatus.CANCELED);
+        orderState.setOrderStatus(OrderStatus.CANCELED);
         return orderState;
     }
 }

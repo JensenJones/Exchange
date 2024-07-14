@@ -6,11 +6,11 @@ public class Order {
     private final UUID uuid;
     private final BuySell buySell;
     private final long time;
-    private final double price;
+    private final long price;
     private final double quantity;
     private final double quantityFilled;
 
-    public Order(UUID uuid, BuySell type, long time, double price, double quantity) {
+    public Order(UUID uuid, BuySell type, long time, long price, double quantity) {
         this.uuid = uuid;
         this.time = time;
         this.price = price;
@@ -19,7 +19,7 @@ public class Order {
         this.quantityFilled = 0;
     }
 
-    public Order(UUID uuid, BuySell buySell, long time, double price, double quantity, double quantityFilled) {
+    public Order(UUID uuid, BuySell buySell, long time, long price, double quantity, double quantityFilled) {
         this.uuid = uuid;
         this.time = time;
         this.price = price;
@@ -36,7 +36,7 @@ public class Order {
         return time;
     }
 
-    public double getPrice() {
+    public long getPrice() {
         return price;
     }
 

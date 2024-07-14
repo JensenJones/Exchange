@@ -13,7 +13,7 @@ public class OrderState {
         return orderStatus;
     }
 
-    public void ChangeOrderStatus(OrderStatus orderStatus) {
+    public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
     }
 
