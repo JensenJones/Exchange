@@ -1,5 +1,6 @@
 package org.jj;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Order {
@@ -7,10 +8,10 @@ public class Order {
     private final BuySell buySell;
     private final long time;
     private final long price;
-    private final double quantity;
-    private final double quantityFilled;
+    private final long quantity;
+    private long quantityFilled;
 
-    public Order(UUID uuid, BuySell type, long time, long price, double quantity) {
+    public Order(UUID uuid, BuySell type, long time, long price, long quantity) {
         this.uuid = uuid;
         this.time = time;
         this.price = price;
@@ -19,13 +20,13 @@ public class Order {
         this.quantityFilled = 0;
     }
 
-    public Order(UUID uuid, BuySell buySell, long time, long price, double quantity, double quantityFilled) {
-        this.uuid = uuid;
-        this.time = time;
-        this.price = price;
-        this.quantity = quantity;
-        this.buySell = buySell;
-        this.quantityFilled = quantityFilled;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Order order = (Order) o;
+        return time == order.time && price == order.price && quantity == order.quantity &&
+                       quantityFilled == order.quantityFilled && Objects.equals(uuid, order.uuid) && buySell == order.buySell;
     }
 
     public UUID getUuid(){
@@ -40,11 +41,11 @@ public class Order {
         return price;
     }
 
-    public double getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public double getQuantityFilled() {
+    public long getQuantityFilled() {
         return quantityFilled;
     }
 
@@ -52,10 +53,9 @@ public class Order {
         return buySell;
     }
 
-    public Order fillOrder(double quantityTrading) {
-        if (quantityTrading <= quantity - quantityFilled) {
-            return new Order(uuid, buySell, time, price, quantity, quantityFilled + quantityTrading);
-        }
-        throw new IllegalArgumentException("Trading quantity exceeds available quantity");
+    public void trade(Order order) {
+        long tradingQuantity = Math.min(quantity - quantityFilled, order.getQuantity() - order.getQuantityFilled());
+        quantityFilled += tradingQuantity;
+        order.quantityFilled += tradingQuantity;
     }
 }
