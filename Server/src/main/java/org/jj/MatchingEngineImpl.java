@@ -22,7 +22,7 @@ public class MatchingEngineImpl implements MatchingEngine {
     @Override
     public Order createOrder(long quantity, long price, BuySell buySell) {
         Order order = new Order(idProvider.getUUID(), buySell, timestampProvider.getTimestamp(), quantity, price);
-        orderBook.newOrder(order);
+        orderBook.addOrder(order);
         return order;
     }
 

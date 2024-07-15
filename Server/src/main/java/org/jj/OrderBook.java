@@ -30,7 +30,7 @@ public class OrderBook {
         return buySide;
     }
 
-    public void newOrder(Order order) {
+    public void addOrder(Order order) {
         if (!getOtherSideOrders(order.getBuySell()).matchOrder(order)) {
             getSameSideOrders(order.getBuySell()).addOrder(order);
         }
