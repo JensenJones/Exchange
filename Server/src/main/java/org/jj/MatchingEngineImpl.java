@@ -20,21 +20,15 @@ public class MatchingEngineImpl implements MatchingEngine {
     }
 
     @Override
-    public Order createOrder(long quantity, long price, BuySell buySell) {
-        Order order = new Order(idProvider.getUUID(), buySell, timestampProvider.getTimestamp(), quantity, price);
-        orderBook.addOrder(order);
-        return order;
+    public UUID createOrder(long quantity, long price, BuySell buySell) {
+        UUID uuid = idProvider.getUUID();
+        OrderState orderState = orderBook.addOrder(uuid, buySell, quantity, price);
+        Order order = new Order(uuid, buySell, orderState, timestampProvider.getTimestamp(), quantity, price);
+        return order.getUuid();
     }
 
-    @Nullable
     @Override
-    public Order getOrder(UUID id) {
-        return orderBook.getOrder(id);
-    }
-
-    @Nullable
-    @Override
-    public Order cancelOrder(UUID id) {
+    public boolean cancelOrder(UUID id) {
         return orderBook.cancelOrder(id);
     }
 }

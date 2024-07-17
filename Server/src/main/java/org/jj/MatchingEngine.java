@@ -6,9 +6,7 @@ import java.util.UUID;
 
 public interface MatchingEngine {
 
-    Order createOrder(long quantity, long price, BuySell buySell);
+    UUID createOrder(long quantity, long price, BuySell buySell);
 
-    @Nullable Order getOrder(UUID id);
-
-    @Nullable Order cancelOrder(UUID id);
+    boolean cancelOrder(UUID id);
 }

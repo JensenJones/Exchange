@@ -5,29 +5,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class OrderBookSide {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrderBookSide.class);
+public abstract class OrderBookSide {
+    protected static final Logger LOGGER = LoggerFactory.getLogger(OrderBookSide.class);
 
-    private List<OrdersAtPrice> ordersByPrice = new LinkedList<>();
-    private final Map<UUID, Node> uuidToNodeMap = new HashMap<>();
+    protected final List<OrdersAtPrice> ordersByPrice = new LinkedList<>();
+    protected final Map<UUID, Node> uuidToNodeMap = new HashMap<>();
 
     public OrderBookSide() {
     }
 
-    public void addOrder(Order order) {
-        long price = order.getPrice();
-        UUID uuid = order.getUuid();
-        Node node = new Node(order);
+    public void addOrder(UUID uuid, long quantity, long quantityFilled, long price) {
+        Node node = new Node(uuid, quantity, quantityFilled, price);
         uuidToNodeMap.put(uuid, node);
 
         ListIterator<OrdersAtPrice> iterator = ordersByPrice.listIterator();
 
+        boolean added = false;
         while (iterator.hasNext()) {
             OrdersAtPrice current = iterator.next();
             if (current.price == price) {
                 current.add(node);
                 return;
-            } else if (current.price > price) {
+            } else if (current.price > price){ // TODO HERE ************************* TODO WHAT HERE IDK
                 OrdersAtPrice newList = new OrdersAtPrice(node);
                 iterator.previous();
                 iterator.add(newList);
@@ -35,10 +34,10 @@ public class OrderBookSide {
             }
         }
 
-        if (ordersByPrice.isEmpty()) {
+        if (!added) {
             ordersByPrice.add(new OrdersAtPrice(node));
         } else {
-            LOGGER.error("ORDER NEVER ADDED TO ORDER BOOK");
+            LOGGER.error("ORDER NEVER ADDED TO ORDER BOOK | uuid = {} | quantity = {} | price = {} |", uuid, quantity, price);
         }
     }
 
@@ -46,83 +45,49 @@ public class OrderBookSide {
         return uuidToNodeMap.containsKey(uuid);
     }
 
-    public Order getOrder(UUID uuid) {
-        Node node = uuidToNodeMap.get(uuid);
-        if (node == null) {
-            return null;
-        }
-        return uuidToNodeMap.get(uuid).order;
-    }
-
-    public Order removeOrder(UUID uuid) {
+    public boolean removeOrder(UUID uuid) {
         Node node = uuidToNodeMap.remove(uuid);
+
         assert (node != null);
-        for (OrdersAtPrice ordersAtPrice : ordersByPrice) {
-            if (ordersAtPrice.price == node.order.getPrice()) {
-                ordersAtPrice.removeNodeSafety(node);
-                break;
+        ListIterator<OrdersAtPrice> iterator = ordersByPrice.listIterator();
+        while (iterator.hasNext()) {
+            OrdersAtPrice ordersAtPrice = iterator.next();
+            if (ordersAtPrice.price == node.price) {
+                ordersAtPrice.removeNode(node);
+                if (ordersAtPrice.head == null) {
+                    iterator.remove();
+                }
+                return true;
             }
         }
-        node.removeFromOrdersAtPrice();
-        return node.order;
+        return false;
     }
 
-    public boolean matchOrder(Order order) {
-        if (order.getBuySell() == BuySell.BUY) {
-            for (OrdersAtPrice ordersAtPrice : ordersByPrice) {
-                if (ordersAtPrice.price > order.getPrice()) {
-                    break;
-                }
-                if (ordersAtPrice.head != null) {
-                    Node current = ordersAtPrice.head;
-                    while (current != null) {
-                        order.trade(current.order);
-                        Node tradedWith = current;
-                        current = current.next;
-                        if (tradedWith.order.getQuantityFilled() == tradedWith.order.getQuantity()) {
-                            removeOrder(tradedWith.order.getUuid());
-                        }
-                    }
-                    if (order.getQuantityFilled() == order.getQuantity()) {
-                        return true;
-                    }
-                }
-            }
-        } else {
-            ListIterator<OrdersAtPrice> iterator = ordersByPrice.listIterator(ordersByPrice.size());
-            while (iterator.hasPrevious()) {
-                OrdersAtPrice ordersAtPrice = iterator.previous();
-                if (ordersAtPrice.price < order.getPrice()) {
-                    break;
-                }
-                if (ordersAtPrice.head != null) {
-                    Node current = ordersAtPrice.head;
-                    while (current != null) {
-                        order.trade(current.order);
-                        Node tradedWith = current;
-                        current = current.next;
-                        if (tradedWith.order.getQuantityFilled() == tradedWith.order.getQuantity()) {
-                            removeOrder(tradedWith.order.getUuid());
-                        }
-                    }
-                    if (order.getQuantityFilled() == order.getQuantity()) {
-                        return true;
-                    }
-                }
+    public abstract long matchOrder(UUID uuid, long quantity, long price);
+
+    protected long trade(UUID uuid, long quantity, long quantityTraded, Node current, OrdersAtPrice ordersAtPrice, ListIterator<OrdersAtPrice> iterator) {
+        long quantityTrading = Math.min(quantity - quantityTraded, current.getQuantityLeft());
+        new Match(uuid, current.getUuid(), quantityTrading, current.getPrice(), new TimestampProviderImplEpochNano());
+        if (current.trade(quantityTrading)) {
+            uuidToNodeMap.remove(current.getUuid());
+            ordersAtPrice.removeNode(current);
+            if (ordersAtPrice.gethead() == null) {
+                iterator.remove();
             }
         }
-        return order.getQuantityFilled() == order.getQuantity();
+        quantityTraded += quantityTrading;
+        return quantityTraded;
     }
 
-    private static class OrdersAtPrice {
+    protected static class OrdersAtPrice {
         private Node head;
         private Node tail;
-        private final Long price;
+        private final long price;
 
         public OrdersAtPrice(Node head) {
             this.head = head;
             this.tail = head;
-            price = head.order.getPrice();
+            price = head.price;
         }
 
         public void add(Node node) {
@@ -131,42 +96,74 @@ public class OrderBookSide {
             tail = node;
         }
 
+        public long getPrice() {
+            return price;
+        }
+
         // Ensures Head and Tail of OrdersAtPrice are kept when either head or tail node are removed
-        public void removeNodeSafety(Node node) {
+        public void removeNode(Node node) {
             if (head == node) {
-                if (node.next != null) {
-                    head = node.next;
-                }
+                head = node.next;
             }
             if (tail == node) {
-                if (node.prev != null) {
-                    tail = node.prev;
-                }
+                tail = node.prev;
             }
+            node.unlink();
+        }
+
+        public Node gethead() {
+            return head;
         }
     }
 
-    private static class Node {
-        private final Order order;
+    protected static class Node {
+        private final UUID uuid;
+        private final long quantity;
+        private long quantityFilled = 0;
+        private final long price;
         private Node next;
         private Node prev;
 
-        public Node(Order value) {
-            this.order = value;
+        public Node(UUID uuid, long quantity, long quantityFilled, long price) {
+            this.quantity = quantity;
+            this.price = price;
+            this.quantityFilled = quantityFilled;
+            this.uuid = uuid;
         }
 
-        public void removeFromOrdersAtPrice() {
-            if (prev == null && next == null) {
-                return;
-            }
-            if (next == null) {
-                prev.next = null;
-            } else if (prev == null) {
-                next.prev = null;
-            } else {
-                prev.next = next;
+        public void unlink() {
+            if (next != null) {
                 next.prev = prev;
             }
+            if (prev != null) {
+                prev.next = next;
+            }
+            prev = next = null;
+        }
+
+        public void fillOrder(long quantity) {
+            quantityFilled += quantity;
+        }
+
+        public Node getNext() {
+            return next;
+        }
+
+        public long getQuantityLeft() {
+            return quantity - quantityFilled;
+        }
+
+        public UUID getUuid() {
+            return uuid;
+        }
+
+        public boolean trade(long tradingQuantity) {
+            quantityFilled += tradingQuantity;
+            return quantityFilled == quantity;
+        }
+
+        public long getPrice() {
+            return price;
         }
     }
 }

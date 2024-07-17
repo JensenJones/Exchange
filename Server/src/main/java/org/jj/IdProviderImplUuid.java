@@ -2,7 +2,7 @@ package org.jj;
 
 import java.util.UUID;
 
-public class IdProviderImpl implements IdProvider {
+public class IdProviderImplUuid implements IdProvider {
 
     @Override
     public UUID getUUID() {
