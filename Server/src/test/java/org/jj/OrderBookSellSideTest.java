@@ -15,7 +15,7 @@ public class OrderBookSellSideTest {
 
     @BeforeEach
     void setUp() {
-        subject = new OrderBookSellSide();
+        subject = new OrderBookSellSide(new SystemTimestampProvider());
 
         idProvider = Mockito.mock(IdProviderImplUuid.class);
         when(idProvider.getUUID()).thenReturn(UUID.randomUUID());

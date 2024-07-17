@@ -4,7 +4,8 @@ import java.util.*;
 
 public class OrderBookSellSide extends OrderBookSide{
 
-    public OrderBookSellSide() {
+    public OrderBookSellSide(TimestampProvider timestampProvider) {
+        super(timestampProvider);
     }
 
     @Override
@@ -21,7 +22,15 @@ public class OrderBookSellSide extends OrderBookSide{
 
             Node current = ordersAtPrice.gethead();
             while (current != null) {
-                quantityTraded += trade(uuid, quantity, quantityTraded, current, ordersAtPrice, iterator);
+                quantityTraded += trade(uuid, quantity - quantityTraded, current);
+
+                if (current.getQuantityRemaining() == 0) {
+                    uuidToNodeMap.remove(current.getUuid());
+                    ordersAtPrice.removeNode(current);
+                    if (ordersAtPrice.gethead() == null) {
+                        iterator.remove();
+                    }
+                }
 
                 if (quantityTraded == quantity) {
                     break;

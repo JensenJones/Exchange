@@ -7,13 +7,13 @@ public class Match {
     private final UUID passiveUuid;
     private final long amountTraded;
     private final long price;
-    private final long timestamp;
+    private final long timeStampMs;
 
-    public Match(UUID agressorUuid, UUID passiveUuid, long amountTraded, long price, TimestampProvider timestampProvider) {
+    public Match(UUID agressorUuid, UUID passiveUuid, long amountTraded, long price, long timeStampMs) {
         this.agressorUuid = agressorUuid;
         this.passiveUuid = passiveUuid;
         this.amountTraded = amountTraded;
         this.price = price;
-        timestamp = timestampProvider.getTimestamp();
+        this.timeStampMs = timeStampMs;
     }
 }

@@ -5,16 +5,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class OrderBook {
-    private final OrderBookSide buySide = new OrderBookBuySide();
-    private final OrderBookSide sellSide = new OrderBookSellSide();
+    private final OrderBookSide buySide = new OrderBookBuySide(new SystemTimestampProvider());
+    private final OrderBookSide sellSide = new OrderBookSellSide(new SystemTimestampProvider());
 
-    public OrderState addOrder(UUID uuid, BuySell buySell, long quantity, long price) {
+    public void addOrder(UUID uuid, BuySell buySell, long quantity, long price) {
         long quantityFilled = getOrderSide(BuySell.getOtherSide(buySell)).matchOrder(uuid, quantity, price);
         if (quantityFilled < quantity) {
             getOrderSide(buySell).addOrder(uuid, quantity, quantityFilled, price);
-            return OrderState.ACTIVE;
         }
-        return OrderState.FULFILLED;
     }
 
     public boolean cancelOrder(UUID uuid) {

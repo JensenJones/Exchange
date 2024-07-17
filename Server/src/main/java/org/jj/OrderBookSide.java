@@ -10,8 +10,10 @@ public abstract class OrderBookSide {
 
     protected final List<OrdersAtPrice> ordersByPrice = new LinkedList<>();
     protected final Map<UUID, Node> uuidToNodeMap = new HashMap<>();
+    private final TimestampProvider timestampProvider;
 
-    public OrderBookSide() {
+    public OrderBookSide(TimestampProvider timestampProvider) {
+        this.timestampProvider = timestampProvider;
     }
 
     public void addOrder(UUID uuid, long quantity, long quantityFilled, long price) {
@@ -65,18 +67,12 @@ public abstract class OrderBookSide {
 
     public abstract long matchOrder(UUID uuid, long quantity, long price);
 
-    protected long trade(UUID uuid, long quantity, long quantityTraded, Node current, OrdersAtPrice ordersAtPrice, ListIterator<OrdersAtPrice> iterator) {
-        long quantityTrading = Math.min(quantity - quantityTraded, current.getQuantityLeft());
-        new Match(uuid, current.getUuid(), quantityTrading, current.getPrice(), new TimestampProviderImplEpochNano());
-        if (current.trade(quantityTrading)) {
-            uuidToNodeMap.remove(current.getUuid());
-            ordersAtPrice.removeNode(current);
-            if (ordersAtPrice.gethead() == null) {
-                iterator.remove();
-            }
-        }
-        quantityTraded += quantityTrading;
-        return quantityTraded;
+    protected long trade(UUID uuid, long quantityRemaining, Node current) {
+        long tradeQuantity = Math.min(quantityRemaining, current.getQuantityRemaining());
+        // TODO DO SOMETHING WITH THIS MATCH
+        new Match(uuid, current.getUuid(), tradeQuantity, current.getPrice(), timestampProvider.getTimestamp());
+        current.trade(tradeQuantity);
+        return tradeQuantity;
     }
 
     protected static class OrdersAtPrice {
@@ -149,7 +145,7 @@ public abstract class OrderBookSide {
             return next;
         }
 
-        public long getQuantityLeft() {
+        public long getQuantityRemaining() {
             return quantity - quantityFilled;
         }
 

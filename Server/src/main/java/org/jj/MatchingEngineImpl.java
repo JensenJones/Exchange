@@ -22,9 +22,8 @@ public class MatchingEngineImpl implements MatchingEngine {
     @Override
     public UUID createOrder(long quantity, long price, BuySell buySell) {
         UUID uuid = idProvider.getUUID();
-        OrderState orderState = orderBook.addOrder(uuid, buySell, quantity, price);
-        Order order = new Order(uuid, buySell, orderState, timestampProvider.getTimestamp(), quantity, price);
-        return order.getUuid();
+        orderBook.addOrder(uuid, buySell, quantity, price);
+        return uuid;
     }
 
     @Override
