@@ -1,56 +1,43 @@
 package org.jj;
 
-import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 public class OrderBook {
-    private final OrderBookSide buySide = new OrderBookSide();
-    private final OrderBookSide sellSide = new OrderBookSide();
+    private final OrderBookSide buySide = new OrderBookBuySide(new SystemTimestampProvider());
+    private final OrderBookSide sellSide = new OrderBookSellSide(new SystemTimestampProvider());
 
-    private OrderBookSide getSameSideOrders(BuySell buySell) {
+    public void addOrder(int id, BuySell buySell, long quantity, long price) {
+        long quantityFilled = getOrderSide(BuySell.getOtherSide(buySell)).matchOrder(id, quantity, price);
+        if (quantityFilled < quantity) {
+            getOrderSide(buySell).addOrder(id, quantity, quantityFilled, price);
+        }
+    }
+
+    public boolean cancelOrder(int id) {
+        BuySell buySell = getOrderSide(id);
+        if (buySell == null) {
+            return false;
+        }
+        OrderBookSide sameSideOrders = getOrderSide(buySell);
+        return sameSideOrders.removeOrder(id);
+    }
+
+
+    private OrderBookSide getOrderSide(BuySell buySell) {
         if (buySell == BuySell.BUY) {
             return buySide;
         }
         return sellSide;
     }
 
-    private BuySell getSameSideOrders(UUID uuid) {
-        if (buySide.hasOrder(uuid)) {
+    @Nullable
+    private BuySell getOrderSide(int id) {
+        if (buySide.hasOrder(id)) {
             return BuySell.BUY;
-        } else if (sellSide.hasOrder(uuid)) {
+        } else if (sellSide.hasOrder(id)) {
             return BuySell.SELL;
         } else {
             return null;
         }
     }
-
-    private OrderBookSide getOtherSideOrders(BuySell buySell) {
-        if (buySell == BuySell.SELL) {
-            return sellSide;
-        }
-        return buySide;
-    }
-
-    public void newOrder(Order order) {
-        if (!getOtherSideOrders(order.getBuySell()).matchOrder(order)) {
-            getSameSideOrders(order.getBuySell()).addOrder(order);
-        }
-    }
-
-    public Order getOrder(UUID uuid) {
-        if (buySide.hasOrder(uuid)) {
-            return buySide.getOrder(uuid);
-        } else {
-            return sellSide.getOrder(uuid);
-        }
-    }
-
-    public Order cancelOrder(UUID uuid) {
-        BuySell buySell = getSameSideOrders(uuid);
-        if (buySell == null) {
-            return null;
-        }
-        OrderBookSide sameSideOrders = getSameSideOrders(buySell);
-        return sameSideOrders.removeOrder(uuid);
-    }
-
 }

@@ -6,18 +6,18 @@ import java.util.UUID;
 public class Order {
     private final UUID uuid;
     private final BuySell buySell;
+    private final OrderState orderState;
     private final long time;
     private final long price;
     private final long quantity;
-    private long quantityFilled;
 
-    public Order(UUID uuid, BuySell type, long time, long quantity, long price) {
+    public Order(UUID uuid, BuySell buySell, OrderState orderState, long time, long quantity, long price) {
         this.uuid = uuid;
+        this.buySell = buySell;
+        this.orderState = orderState;
         this.time = time;
         this.quantity = quantity;
         this.price = price;
-        this.buySell = type;
-        this.quantityFilled = 0;
     }
 
     @Override
@@ -25,8 +25,7 @@ public class Order {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
-        return time == order.time && price == order.price && quantity == order.quantity &&
-                       quantityFilled == order.quantityFilled && Objects.equals(uuid, order.uuid) && buySell == order.buySell;
+        return Objects.equals(uuid, order.uuid);
     }
 
     public UUID getUuid(){
@@ -45,17 +44,7 @@ public class Order {
         return price;
     }
 
-    public long getQuantityFilled() {
-        return quantityFilled;
-    }
-
     public BuySell getBuySell() {
         return buySell;
-    }
-
-    public void trade(Order order) {
-        long tradingQuantity = Math.min(quantity - quantityFilled, order.getQuantity() - order.getQuantityFilled());
-        quantityFilled += tradingQuantity;
-        order.quantityFilled += tradingQuantity;
     }
 }

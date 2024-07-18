@@ -1,6 +1,5 @@
 package org.jj;
 
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,21 +19,14 @@ public class MatchingEngineImpl implements MatchingEngine {
     }
 
     @Override
-    public Order createOrder(long quantity, long price, BuySell buySell) {
-        Order order = new Order(idProvider.getUUID(), buySell, timestampProvider.getTimestamp(), quantity, price);
-        orderBook.newOrder(order);
-        return order;
+    public int createOrder(long quantity, long price, BuySell buySell) {
+        int id = idProvider.getNewId();
+        orderBook.addOrder(id, buySell, quantity, price);
+        return id;
     }
 
-    @Nullable
     @Override
-    public Order getOrder(UUID id) {
-        return orderBook.getOrder(id);
-    }
-
-    @Nullable
-    @Override
-    public Order cancelOrder(UUID id) {
+    public boolean cancelOrder(int id) {
         return orderBook.cancelOrder(id);
     }
 }
