@@ -2,26 +2,24 @@ package org.jj;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 public class OrderBook {
     private final OrderBookSide buySide = new OrderBookBuySide(new SystemTimestampProvider());
     private final OrderBookSide sellSide = new OrderBookSellSide(new SystemTimestampProvider());
 
-    public void addOrder(UUID uuid, BuySell buySell, long quantity, long price) {
-        long quantityFilled = getOrderSide(BuySell.getOtherSide(buySell)).matchOrder(uuid, quantity, price);
+    public void addOrder(int id, BuySell buySell, long quantity, long price) {
+        long quantityFilled = getOrderSide(BuySell.getOtherSide(buySell)).matchOrder(id, quantity, price);
         if (quantityFilled < quantity) {
-            getOrderSide(buySell).addOrder(uuid, quantity, quantityFilled, price);
+            getOrderSide(buySell).addOrder(id, quantity, quantityFilled, price);
         }
     }
 
-    public boolean cancelOrder(UUID uuid) {
-        BuySell buySell = getOrderSide(uuid);
+    public boolean cancelOrder(int id) {
+        BuySell buySell = getOrderSide(id);
         if (buySell == null) {
             return false;
         }
         OrderBookSide sameSideOrders = getOrderSide(buySell);
-        return sameSideOrders.removeOrder(uuid);
+        return sameSideOrders.removeOrder(id);
     }
 
 
@@ -33,10 +31,10 @@ public class OrderBook {
     }
 
     @Nullable
-    private BuySell getOrderSide(UUID uuid) {
-        if (buySide.hasOrder(uuid)) {
+    private BuySell getOrderSide(int id) {
+        if (buySide.hasOrder(id)) {
             return BuySell.BUY;
-        } else if (sellSide.hasOrder(uuid)) {
+        } else if (sellSide.hasOrder(id)) {
             return BuySell.SELL;
         } else {
             return null;

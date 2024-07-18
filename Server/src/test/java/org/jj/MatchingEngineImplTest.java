@@ -19,7 +19,7 @@ class MatchingEngineImplTest {
         TimestampProvider timestampProvider = Mockito.mock(TimestampProvider.class);
         when(timestampProvider.getTimestamp()).thenReturn(10L);
 
-        subject = new MatchingEngineImpl(timestampProvider, new IdProviderImplUuid());
+        subject = new MatchingEngineImpl(timestampProvider, new IntIdProvider());
     }
 
     @Test

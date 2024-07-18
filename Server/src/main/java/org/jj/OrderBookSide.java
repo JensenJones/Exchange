@@ -9,16 +9,16 @@ public abstract class OrderBookSide {
     protected static final Logger LOGGER = LoggerFactory.getLogger(OrderBookSide.class);
 
     protected final List<OrdersAtPrice> ordersByPrice = new LinkedList<>();
-    protected final Map<UUID, Node> uuidToNodeMap = new HashMap<>();
+    protected final Map<Integer, Node> idToNode = new HashMap<Integer, Node>();
     private final TimestampProvider timestampProvider;
 
     public OrderBookSide(TimestampProvider timestampProvider) {
         this.timestampProvider = timestampProvider;
     }
 
-    public void addOrder(UUID uuid, long quantity, long quantityFilled, long price) {
-        Node node = new Node(uuid, quantity, quantityFilled, price);
-        uuidToNodeMap.put(uuid, node);
+    public void addOrder(int id, long quantity, long quantityFilled, long price) {
+        Node node = new Node(id, quantity, quantityFilled, price);
+        idToNode.put(id, node);
 
         ListIterator<OrdersAtPrice> iterator = ordersByPrice.listIterator();
 
@@ -39,16 +39,16 @@ public abstract class OrderBookSide {
         if (!added) {
             ordersByPrice.add(new OrdersAtPrice(node));
         } else {
-            LOGGER.error("ORDER NEVER ADDED TO ORDER BOOK | uuid = {} | quantity = {} | price = {} |", uuid, quantity, price);
+            LOGGER.error("ORDER NEVER ADDED TO ORDER BOOK | uuid = {} | quantity = {} | price = {} |", id, quantity, price);
         }
     }
 
-    public boolean hasOrder(UUID uuid) {
-        return uuidToNodeMap.containsKey(uuid);
+    public boolean hasOrder(int id) {
+        return idToNode.containsKey(id);
     }
 
-    public boolean removeOrder(UUID uuid) {
-        Node node = uuidToNodeMap.remove(uuid);
+    public boolean removeOrder(int id) {
+        Node node = idToNode.remove(id);
 
         assert (node != null);
         ListIterator<OrdersAtPrice> iterator = ordersByPrice.listIterator();
@@ -65,12 +65,12 @@ public abstract class OrderBookSide {
         return false;
     }
 
-    public abstract long matchOrder(UUID uuid, long quantity, long price);
+    public abstract long matchOrder(int id, long quantity, long price);
 
-    protected long trade(UUID uuid, long quantityRemaining, Node current) {
+    protected long trade(int id, long quantityRemaining, Node current) {
         long tradeQuantity = Math.min(quantityRemaining, current.getQuantityRemaining());
         // TODO DO SOMETHING WITH THIS MATCH
-        new Match(uuid, current.getUuid(), tradeQuantity, current.getPrice(), timestampProvider.getTimestamp());
+        new Match(id, current.getId(), tradeQuantity, current.getPrice(), timestampProvider.getTimestamp());
         current.trade(tradeQuantity);
         return tradeQuantity;
     }
@@ -113,18 +113,18 @@ public abstract class OrderBookSide {
     }
 
     protected static class Node {
-        private final UUID uuid;
+        private final int id;
         private final long quantity;
         private long quantityFilled = 0;
         private final long price;
         private Node next;
         private Node prev;
 
-        public Node(UUID uuid, long quantity, long quantityFilled, long price) {
+        public Node(int id, long quantity, long quantityFilled, long price) {
             this.quantity = quantity;
             this.price = price;
             this.quantityFilled = quantityFilled;
-            this.uuid = uuid;
+            this.id = id;
         }
 
         public void unlink() {
@@ -149,13 +149,12 @@ public abstract class OrderBookSide {
             return quantity - quantityFilled;
         }
 
-        public UUID getUuid() {
-            return uuid;
+        public int getId() {
+            return id;
         }
 
-        public boolean trade(long tradingQuantity) {
+        public void trade(long tradingQuantity) {
             quantityFilled += tradingQuantity;
-            return quantityFilled == quantity;
         }
 
         public long getPrice() {

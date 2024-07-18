@@ -9,7 +9,7 @@ public class OrderBookBuySide extends OrderBookSide{
     }
 
     @Override
-    public long matchOrder(UUID uuid, long quantity, long price) {
+    public long matchOrder(int id, long quantity, long price) {
         long quantityTraded = 0;
         ListIterator<OrdersAtPrice> iterator = ordersByPrice.listIterator(ordersByPrice.size());
 
@@ -20,10 +20,10 @@ public class OrderBookBuySide extends OrderBookSide{
             }
             Node current = ordersAtPrice.gethead();
             while (current != null) {
-                quantityTraded += trade(uuid, quantity - quantityTraded, current);
+                quantityTraded += trade(id, quantity - quantityTraded, current);
 
                 if (current.getQuantityRemaining() == 0) {
-                    uuidToNodeMap.remove(current.getUuid());
+                    idToNode.remove(current.getId());
                     ordersAtPrice.removeNode(current);
                     if (ordersAtPrice.gethead() == null) {
                         iterator.remove();

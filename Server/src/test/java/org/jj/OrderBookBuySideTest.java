@@ -12,58 +12,62 @@ import static org.mockito.Mockito.when;
 
 public class OrderBookBuySideTest {
     OrderBookSide subject;
-    IdProvider idProvider;
 
     @BeforeEach
     void setUp() {
         subject = new OrderBookBuySide(new SystemTimestampProvider());
-
-        idProvider = Mockito.mock(IdProviderImplUuid.class);
-        when(idProvider.getUUID()).thenReturn(UUID.randomUUID());
     }
 
     @Test
     void shouldAddOrder() {
-        subject.addOrder(idProvider.getUUID(), 1, 0, 1);
+        subject.addOrder(1, 1, 0, 1);
 
-        assertThat(subject.hasOrder(idProvider.getUUID())).isTrue();
+        assertThat(subject.hasOrder(1)).isTrue();
     }
 
     @Test
     void shouldRemoveOrder() {
-        subject.addOrder(idProvider.getUUID(), 1, 0, 1);
+        subject.addOrder(1, 1, 0, 1);
 
-        subject.removeOrder(idProvider.getUUID());
+        subject.removeOrder(1);
 
-        assertThat(subject.hasOrder(idProvider.getUUID())).isFalse();
+        assertThat(subject.hasOrder(1)).isFalse();
     }
 
     @Test
     void shouldMatchOrderWithSamePrice() {
-        subject.addOrder(idProvider.getUUID(), 1, 0, 1);
+        subject.addOrder(1, 1, 0, 1);
 
-        assertThat(subject.matchOrder(UUID.randomUUID(), 1, 1)).isEqualTo(1);
+        assertThat(subject.matchOrder(1, 1, 1)).isEqualTo(1);
     }
 
     @Test
     void shouldSellToHigherBuy() {
-        subject.addOrder(idProvider.getUUID(), 1, 0, 100);
+        subject.addOrder(1, 1, 0, 100);
 
-        assertThat(subject.matchOrder(UUID.randomUUID(), 1, 1)).isEqualTo(1);
+        assertThat(subject.matchOrder(1, 1, 1)).isEqualTo(1);
     }
 
     @Test
     void shouldMatchSamePriceDifferentQuantity() {
-        subject.addOrder(idProvider.getUUID(), 10, 0, 1);
+        subject.addOrder(1, 10, 0, 1);
 
-        assertThat(subject.matchOrder(UUID.randomUUID(), 1, 1)).isEqualTo(1);
-        assertThat(subject.matchOrder(UUID.randomUUID(), 1000, 1)).isEqualTo(9);
+        assertThat(subject.matchOrder(1, 1, 1)).isEqualTo(1);
+        assertThat(subject.matchOrder(1, 1000, 1)).isEqualTo(9);
     }
 
     @Test
     void shouldMatchPartiallyFilledPassiveOrder() {
-        subject.addOrder(idProvider.getUUID(), 10, 5, 1);
+        subject.addOrder(1, 10, 5, 1);
 
-        assertThat(subject.matchOrder(UUID.randomUUID(), 6, 1)).isEqualTo(5);
+        assertThat(subject.matchOrder(1, 6, 1)).isEqualTo(5);
+    }
+
+    @Test
+    void shouldRemoveFilledPassiveOrder() {
+        subject.addOrder(1, 1, 0, 1);
+        subject.matchOrder(2, 1, 1);
+
+        assertThat(subject.hasOrder(1)).isFalse();
     }
 }
