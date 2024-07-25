@@ -3,8 +3,8 @@ package org.jj;
 import org.jetbrains.annotations.Nullable;
 
 public class OrderBook {
-    private final OrderBookSide buySide = new OrderBookBuySide(new SystemTimestampProvider());
-    private final OrderBookSide sellSide = new OrderBookSellSide(new SystemTimestampProvider());
+    private final OrderBookSide buySide = new OrderBookSide(new SystemTimestampProvider(), (l1, l2) -> l2.compareTo(l1));
+    private final OrderBookSide sellSide = new OrderBookSide(new SystemTimestampProvider(),  (l1, l2) -> l1.compareTo(l2));
 
     public void addOrder(int id, BuySell buySell, long quantity, long price) {
         long quantityFilled = getOrderSide(BuySell.getOtherSide(buySell)).matchOrder(id, quantity, price);

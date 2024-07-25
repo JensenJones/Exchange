@@ -15,7 +15,7 @@ public class OrderBookBuySideTest {
 
     @BeforeEach
     void setUp() {
-        subject = new OrderBookBuySide(new SystemTimestampProvider());
+        subject = new OrderBookSide(new SystemTimestampProvider(),  (l1, l2) -> l2.compareTo(l1));
     }
 
     @Test
@@ -42,7 +42,7 @@ public class OrderBookBuySideTest {
     }
 
     @Test
-    void shouldSellToHigherBuy() {
+    void shouldBuyFromCheaperSell() {
         subject.addOrder(1, 1, 0, 100);
 
         assertThat(subject.matchOrder(1, 1, 1)).isEqualTo(1);

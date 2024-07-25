@@ -12,7 +12,7 @@ public class OrderBookSellSideTest {
 
     @BeforeEach
     void setUp() {
-        subject = new OrderBookSellSide(new SystemTimestampProvider());
+        subject = new OrderBookSide(new SystemTimestampProvider(),  (l1, l2) -> l1.compareTo(l2));
     }
 
     @Test
