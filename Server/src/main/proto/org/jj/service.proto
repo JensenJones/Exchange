@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+// TODO - Put into a package like org.jj.service.protobuf?
+package org.jj;
+
+import "google/protobuf/wrappers.proto";
+
+service OrderService {
+    rpc OrderCreateRequest(OrderCreateRequestDetails) returns (google.protobuf.Int32Value) {}
+    rpc OrderCancelRequest(google.protobuf.Int32Value) returns (google.protobuf.BoolValue) {}
+}
+
+message OrderCreateRequestDetails {
+    int32 product_id = 1;
+    bool buy_sell = 2;
+    int64 quantity = 3;
+    int64 price = 4;
+    string order_type = 5; // New field added
+}

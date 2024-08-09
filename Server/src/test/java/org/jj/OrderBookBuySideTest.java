@@ -1,14 +1,11 @@
 package org.jj;
 
+import org.jj.Providers.SystemTimestampProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.when;
 
 public class OrderBookBuySideTest {
     OrderBookSide subject;

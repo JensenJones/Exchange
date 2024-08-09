@@ -1,10 +1,11 @@
 package org.jj;
 
+import org.jj.Product.ProductStore;
+import org.jj.Providers.IntIdProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class ProductStoreTest {
     ProductStore subject;
@@ -18,7 +19,7 @@ class ProductStoreTest {
     void shouldAddProduct() {
         int id = subject.addProduct("JENSEN CO", "JJJJ");
 
-        assertThat(subject.hasProduct(id)).isTrue();
+        assertThat(subject.containsProduct(id)).isTrue();
     }
 
     @Test
@@ -26,8 +27,8 @@ class ProductStoreTest {
         int id1 = subject.addProduct("JENSEN1 CO", "JJ");
         int id2 = subject.addProduct("JENSEN2 CO", "JJJJ");
 
-        assertThat(subject.hasProduct(id1)).isTrue();
-        assertThat(subject.hasProduct(id2)).isTrue();
+        assertThat(subject.containsProduct(id1)).isTrue();
+        assertThat(subject.containsProduct(id2)).isTrue();
     }
 
     @Test
@@ -36,6 +37,6 @@ class ProductStoreTest {
         int id2 = subject.addProduct("JENSEN2 CO", "JJJJ");
 
         assertThat(subject.removeProduct(id1)).isTrue();
-        assertThat(subject.hasProduct(id1)).isFalse();
+        assertThat(subject.containsProduct(id1)).isFalse();
     }
 }

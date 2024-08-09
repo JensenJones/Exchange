@@ -1,9 +1,11 @@
-package org.jj;
+package org.jj.MatchingEngine;
 
+import org.jj.BuySell;
+import org.jj.Providers.IdProvider;
+import org.jj.OrderBook;
+import org.jj.Providers.TimestampProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class MatchingEngineImpl implements MatchingEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(MatchingEngineImpl.class);
@@ -20,7 +22,7 @@ public class MatchingEngineImpl implements MatchingEngine {
 
     @Override
     public int createOrder(long quantity, long price, BuySell buySell) {
-        int id = idProvider.getNewId();
+        int id = idProvider.generateId();
         orderBook.addOrder(id, buySell, quantity, price);
         return id;
     }

@@ -1,5 +1,8 @@
 package org.jj;
 
+import org.jj.MatchingEngine.MatchingEngineImpl;
+import org.jj.Providers.IntIdProvider;
+import org.jj.Providers.TimestampProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

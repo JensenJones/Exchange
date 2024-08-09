@@ -1,9 +1,18 @@
-package org.jj;
+package org.jj.Product;
 
+import org.jj.Main;
+import org.jj.Providers.IdProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ProductStore {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
     private final Map<Integer, Product> idToProduct = new HashMap<>();
     private final Map<String, Product> symbolToProduct = new HashMap<>();
     private final IdProvider idProvider;
@@ -14,10 +23,11 @@ public class ProductStore {
 
     public int addProduct(String name, String symbol) {
         if (symbolToProduct.containsKey(symbol)) {
-            return -1;
+            throw new IllegalArgumentException("Product with that symbol already exists");
         }
 
-        int id = idProvider.getNewId();
+        int id = idProvider.generateId();
+
         Product product = new Product(id, symbol, name);
         symbolToProduct.put(symbol, product);
         idToProduct.put(id, product);
@@ -25,12 +35,12 @@ public class ProductStore {
         return id;
     }
 
-    public boolean hasProduct(int id) {
+    public boolean containsProduct(int id) {
         return idToProduct.containsKey(id);
     }
 
-    public boolean hasProduct(String symbol) {
-        return symbolToProduct.containsKey(symbol);
+    public Product getProduct(int id) {
+        return idToProduct.get(id);
     }
 
     public boolean removeProduct(int id) {
@@ -42,12 +52,12 @@ public class ProductStore {
         return true;
     }
 
-    public boolean removeProduct(String symbol) {
-        Product product = symbolToProduct.remove(symbol);
-        if (product == null) {
-            return false;
+    // TODO - remove unless you need it. I don't think you need it?
+    public List<Product> getAllProducts() {
+        ArrayList<Product> productList = new ArrayList<>();
+        for (Map.Entry<Integer, Product> product : idToProduct.entrySet()) {
+            productList.add(product.getValue());
         }
-        idToProduct.remove(product.getId());
-        return true;
+        return productList;
     }
 }
