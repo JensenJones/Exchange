@@ -1,7 +1,7 @@
-package org.jj;
+package org.jj.productTest;
 
-import org.jj.Product.ProductStore;
-import org.jj.Providers.IntIdProvider;
+import org.jj.product.ProductStore;
+import org.jj.providers.IntIdProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

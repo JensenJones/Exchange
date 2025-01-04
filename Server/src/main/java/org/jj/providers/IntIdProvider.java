@@ -1,4 +1,4 @@
-package org.jj.Providers;
+package org.jj.providers;
 
 public class IntIdProvider implements IdProvider {
     private int lastId = 0;
@@ -8,7 +8,6 @@ public class IntIdProvider implements IdProvider {
 
     @Override
     public int generateId() {
-        lastId ++;
-        return lastId;
+        return ++lastId;
     }
 }

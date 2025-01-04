@@ -1,7 +1,6 @@
-package org.jj.Product;
+package org.jj.product;
 
-import org.jj.Main;
-import org.jj.Providers.IdProvider;
+import org.jj.providers.IdProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ProductStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductStore.class);
 
     private final Map<Integer, Product> idToProduct = new HashMap<>();
     private final Map<String, Product> symbolToProduct = new HashMap<>();
@@ -52,7 +51,6 @@ public class ProductStore {
         return true;
     }
 
-    // TODO - remove unless you need it. I don't think you need it?
     public List<Product> getAllProducts() {
         ArrayList<Product> productList = new ArrayList<>();
         for (Map.Entry<Integer, Product> product : idToProduct.entrySet()) {

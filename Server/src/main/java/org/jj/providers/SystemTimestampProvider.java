@@ -1,4 +1,4 @@
-package org.jj.Providers;
+package org.jj.providers;
 
 public class SystemTimestampProvider implements TimestampProvider {
 

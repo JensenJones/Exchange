@@ -1,6 +1,7 @@
-package org.jj;
+package org.jj.matchingEngine;
 
-import org.jj.Providers.TimestampProvider;
+import org.jj.Match;
+import org.jj.providers.TimestampProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

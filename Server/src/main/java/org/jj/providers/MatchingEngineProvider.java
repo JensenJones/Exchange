@@ -1,10 +1,9 @@
-package org.jj;
+package org.jj.providers;
 
-import org.jj.MatchingEngine.MatchingEngineImpl;
-import org.jj.Product.Product;
-import org.jj.Product.ProductStore;
-import org.jj.Providers.IntIdProvider;
-import org.jj.Providers.SystemTimestampProvider;
+import org.jetbrains.annotations.VisibleForTesting;
+import org.jj.matchingEngine.MatchingEngineImpl;
+import org.jj.product.Product;
+import org.jj.product.ProductStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

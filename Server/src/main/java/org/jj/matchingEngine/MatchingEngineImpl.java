@@ -1,9 +1,8 @@
-package org.jj.MatchingEngine;
+package org.jj.matchingEngine;
 
-import org.jj.BuySell;
-import org.jj.Providers.IdProvider;
-import org.jj.OrderBook;
-import org.jj.Providers.TimestampProvider;
+import org.jj.product.BuySell;
+import org.jj.providers.IdProvider;
+import org.jj.providers.TimestampProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

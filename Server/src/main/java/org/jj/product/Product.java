@@ -1,4 +1,4 @@
-package org.jj.Product;
+package org.jj.product;
 
 public class Product {
     private final String symbol;
