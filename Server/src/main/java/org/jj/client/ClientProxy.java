@@ -1,5 +1,7 @@
 package org.jj.client;
 
+import com.google.protobuf.BoolValue;
+import com.google.protobuf.Int32Value;
 import io.grpc.ManagedChannel;
 import org.jj.OrderServiceGrpc;
 import org.jj.Service;
@@ -42,5 +44,9 @@ public class ClientProxy {
         }
 
         return response;
+    }
+
+    public boolean cancelOrder(int orderId) {
+        return blockingStub.orderCancelRequest(Int32Value.of(orderId)).getValue();
     }
 }
