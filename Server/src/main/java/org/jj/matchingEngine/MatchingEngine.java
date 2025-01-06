@@ -1,4 +1,6 @@
-package org.jj;
+package org.jj.matchingEngine;
+
+import org.jj.product.BuySell;
 
 public interface MatchingEngine {
 

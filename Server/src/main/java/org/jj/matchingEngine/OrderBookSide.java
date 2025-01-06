@@ -1,19 +1,23 @@
-package org.jj;
+package org.jj.matchingEngine;
 
+import org.jj.Match;
+import org.jj.providers.TimestampProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public abstract class OrderBookSide {
+public class OrderBookSide {
     protected static final Logger LOGGER = LoggerFactory.getLogger(OrderBookSide.class);
 
     protected final List<OrdersAtPrice> ordersByPrice = new LinkedList<>();
     protected final Map<Integer, Node> idToNode = new HashMap<Integer, Node>();
     private final TimestampProvider timestampProvider;
+    private final Comparator<Long> priceComparator;
 
-    public OrderBookSide(TimestampProvider timestampProvider) {
+    public OrderBookSide(TimestampProvider timestampProvider, Comparator<Long> priceComparator) {
         this.timestampProvider = timestampProvider;
+        this.priceComparator = priceComparator;
     }
 
     public void addOrder(int id, long quantity, long quantityFilled, long price) {
@@ -28,7 +32,7 @@ public abstract class OrderBookSide {
             if (current.price == price) {
                 current.add(node);
                 return;
-            } else if (current.price > price){ // TODO HERE ************************* TODO WHAT HERE IDK
+            } else if (priceComparator.compare(current.price, price) > 0){
                 OrdersAtPrice newList = new OrdersAtPrice(node);
                 iterator.previous();
                 iterator.add(newList);
@@ -65,7 +69,37 @@ public abstract class OrderBookSide {
         return false;
     }
 
-    public abstract long matchOrder(int id, long quantity, long price);
+    public long matchOrder(int id, long quantity, long price) {
+        long quantityTraded = 0;
+        ListIterator<OrdersAtPrice> iterator = ordersByPrice.listIterator();
+
+        while (iterator.hasNext()) {
+            OrdersAtPrice ordersAtPrice = iterator.next();
+
+            if (priceComparator.compare(ordersAtPrice.getPrice(), price) > 0) {
+                break;
+            }
+
+            Node current = ordersAtPrice.gethead();
+            while (current != null) {
+                quantityTraded += trade(id, quantity - quantityTraded, current);
+
+                if (current.getQuantityRemaining() == 0) {
+                    idToNode.remove(current.getId());
+                    ordersAtPrice.removeNode(current);
+                    if (ordersAtPrice.gethead() == null) {
+                        iterator.remove();
+                    }
+                }
+
+                if (quantityTraded == quantity) {
+                    break;
+                }
+                current = current.getNext();
+            }
+        }
+        return quantityTraded;
+    }
 
     protected long trade(int id, long quantityRemaining, Node current) {
         long tradeQuantity = Math.min(quantityRemaining, current.getQuantityRemaining());

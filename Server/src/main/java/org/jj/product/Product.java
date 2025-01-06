@@ -1,9 +1,9 @@
-package org.jj;
+package org.jj.product;
 
 public class Product {
-    private String symbol;
-    private int id;
-    private String name;
+    private final String symbol;
+    private final int id;
+    private final String name;
 
     public Product(int id, String symbol, String name) {
         this.id = id;

@@ -1,21 +1,18 @@
-package org.jj;
+package org.jj.matchingEngineTest;
 
+import org.jj.matchingEngine.OrderBookSide;
+import org.jj.providers.SystemTimestampProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.when;
 
-public class OrderBookBuySideTest {
+public class OrderBookSellSideTest {
     OrderBookSide subject;
 
     @BeforeEach
     void setUp() {
-        subject = new OrderBookBuySide(new SystemTimestampProvider());
+        subject = new OrderBookSide(new SystemTimestampProvider(),  (l1, l2) -> l1.compareTo(l2));
     }
 
     @Test
@@ -38,29 +35,29 @@ public class OrderBookBuySideTest {
     void shouldMatchOrderWithSamePrice() {
         subject.addOrder(1, 1, 0, 1);
 
-        assertThat(subject.matchOrder(1, 1, 1)).isEqualTo(1);
+        assertThat(subject.matchOrder(2, 1, 1)).isEqualTo(1);
     }
 
     @Test
     void shouldSellToHigherBuy() {
-        subject.addOrder(1, 1, 0, 100);
+        subject.addOrder(1, 1, 0, 1);
 
-        assertThat(subject.matchOrder(1, 1, 1)).isEqualTo(1);
+        assertThat(subject.matchOrder(2, 1, 100)).isEqualTo(1);
     }
 
     @Test
     void shouldMatchSamePriceDifferentQuantity() {
         subject.addOrder(1, 10, 0, 1);
 
-        assertThat(subject.matchOrder(1, 1, 1)).isEqualTo(1);
-        assertThat(subject.matchOrder(1, 1000, 1)).isEqualTo(9);
+        assertThat(subject.matchOrder(2, 1, 1)).isEqualTo(1);
+        assertThat(subject.matchOrder(3, 1000, 1)).isEqualTo(9);
     }
 
     @Test
     void shouldMatchPartiallyFilledPassiveOrder() {
         subject.addOrder(1, 10, 5, 1);
 
-        assertThat(subject.matchOrder(1, 6, 1)).isEqualTo(5);
+        assertThat(subject.matchOrder(2, 6, 1)).isEqualTo(5);
     }
 
     @Test
