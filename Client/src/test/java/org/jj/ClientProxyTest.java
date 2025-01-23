@@ -1,11 +1,9 @@
-package org.jj.ClientTest;
+package org.jj;
 
 import io.grpc.*;
-import org.jj.client.ClientProxy;
 
 import org.jj.matchingEngine.OrderStore;
 import org.jj.orderService.OrderServiceServer;
-import org.jj.product.BuySell;
 import org.jj.product.ProductStore;
 import org.jj.providers.IntIdProvider;
 import org.jj.providers.MatchingEngineProvider;
@@ -16,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 public class ClientProxyTest {
     private static final int PORT = 50051;
@@ -43,6 +40,7 @@ public class ClientProxyTest {
     void tearDown() throws InterruptedException {
         server.stop();
         server.blockUntilShutdown();
+        clientA.shutdown();
     }
 
     @Test

@@ -1,6 +1,6 @@
 package org.jj.matchingEngine;
 
-import org.jj.product.BuySell;
+import org.jj.BuySell;
 import org.jj.providers.IdProvider;
 import org.jj.providers.TimestampProvider;
 import org.slf4j.Logger;

@@ -3,7 +3,7 @@ package org.jj.orderService;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import io.grpc.stub.StreamObserver;
-import org.jj.product.BuySell;
+import org.jj.BuySell;
 import org.jj.OrderServiceGrpc;
 import org.jj.matchingEngine.OrderStore;
 import org.jj.Service;

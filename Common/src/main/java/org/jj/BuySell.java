@@ -1,4 +1,4 @@
-package org.jj.product;
+package org.jj;
 
 public enum BuySell {
     BUY,

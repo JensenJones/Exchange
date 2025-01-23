@@ -1,11 +1,7 @@
-package org.jj.client;
+package org.jj;
 
-import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import io.grpc.ManagedChannel;
-import org.jj.OrderServiceGrpc;
-import org.jj.Service;
-import org.jj.product.BuySell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
