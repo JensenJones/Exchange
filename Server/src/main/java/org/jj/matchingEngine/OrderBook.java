@@ -1,7 +1,7 @@
 package org.jj.matchingEngine;
 
 import org.jetbrains.annotations.Nullable;
-import org.jj.product.BuySell;
+import org.jj.BuySell;
 import org.jj.providers.SystemTimestampProvider;
 
 public class OrderBook {

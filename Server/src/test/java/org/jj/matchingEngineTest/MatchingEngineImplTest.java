@@ -1,7 +1,7 @@
 package org.jj.matchingEngineTest;
 
 import org.jj.matchingEngine.MatchingEngineImpl;
-import org.jj.product.BuySell;
+import org.jj.BuySell;
 import org.jj.providers.IntIdProvider;
 import org.jj.providers.TimestampProvider;
 import org.junit.jupiter.api.BeforeEach;
