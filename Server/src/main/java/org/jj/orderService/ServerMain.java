@@ -1,9 +1,11 @@
 package org.jj.orderService;
 
+import java.net.ServerSocket;
+
 public class ServerMain {
     public static void main(String[] args) {
-        try {
-            OrderServiceServer server = new OrderServiceServer(50051);
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            OrderServiceServer server = new OrderServiceServer(serverSocket.getLocalPort());
             server.start();
             server.blockUntilShutdown();
         } catch (Exception e) {
