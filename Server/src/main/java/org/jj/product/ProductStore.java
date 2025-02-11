@@ -13,7 +13,7 @@ public class ProductStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductStore.class);
 
     private final Map<Integer, Product> idToProduct = new HashMap<>();
-    private final Map<String, Product> symbolToProduct = new HashMap<>();
+    private final Map<String, Integer> symbolToId = new HashMap<>();
     private final IdProvider idProvider;
 
     public ProductStore(IdProvider idProvider) {
@@ -21,14 +21,18 @@ public class ProductStore {
     }
 
     public int addProduct(String name, String symbol) {
-        if (symbolToProduct.containsKey(symbol)) {
-            throw new IllegalArgumentException("Product with that symbol already exists");
+        symbol = symbol.strip();
+        name = name.strip();
+
+        if (idToProduct.containsKey(symbolToId.get(symbol))) {
+            LOGGER.error("Product with that symbol already exists");
+            return -1;
         }
 
         int id = idProvider.generateId();
 
         Product product = new Product(id, symbol, name);
-        symbolToProduct.put(symbol, product);
+        symbolToId.put(symbol, id);
         idToProduct.put(id, product);
 
         return id;
@@ -42,12 +46,19 @@ public class ProductStore {
         return idToProduct.get(id);
     }
 
+    public Product getProduct(String symbol) {
+        return idToProduct.get(symbolToId.get(symbol));
+    }
+
     public boolean removeProduct(int id) {
         Product product = idToProduct.remove(id);
         if (product == null) {
             return false;
         }
-        symbolToProduct.remove(product.getSymbol());
+
+        String symbol;
+        symbolToId.entrySet().removeIf(e -> e.getValue().equals(id));
+
         return true;
     }
 
@@ -57,5 +68,9 @@ public class ProductStore {
             productList.add(product.getValue());
         }
         return productList;
+    }
+
+    public int getProductId(String productSymbol) {
+        return symbolToId.get(productSymbol);
     }
 }

@@ -2,11 +2,19 @@ package org.jj.matchingEngine;
 
 import org.jetbrains.annotations.Nullable;
 import org.jj.BuySell;
+import org.jj.Service;
+import org.jj.orderService.OrderServiceImpl;
 import org.jj.providers.SystemTimestampProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class OrderBook {
-    private final OrderBookSide buySide = new OrderBookSide(new SystemTimestampProvider(), (l1, l2) -> l2.compareTo(l1));
-    private final OrderBookSide sellSide = new OrderBookSide(new SystemTimestampProvider(),  (l1, l2) -> l1.compareTo(l2));
+    private final OrderBookSide buySide = new OrderBookSide(new SystemTimestampProvider(), Comparator.reverseOrder());
+    private final OrderBookSide sellSide = new OrderBookSide(new SystemTimestampProvider(), Comparator.naturalOrder());
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderBook.class);
 
     public void addOrder(int id, BuySell buySell, long quantity, long price) {
         long quantityFilled = getOrderSide(BuySell.getOtherSide(buySell)).matchOrder(id, quantity, price);
@@ -24,6 +32,37 @@ public class OrderBook {
         return sameSideOrders.removeOrder(id);
     }
 
+    public Service.OrderBook getOrderBook() {
+        AbstractMap.SimpleEntry<List<Long>, List<Long>> fiveBestBuyOrdersAndQuantitiesList = buySide.getFiveBestOrdersAndQuantitiesList();
+        LOGGER.info("DEBUG five best Buys = {}", fiveBestBuyOrdersAndQuantitiesList);
+        AbstractMap.SimpleEntry<List<Long>, List<Long>> fiveBestSellOrdersAndQuantitiesList = sellSide.getFiveBestOrdersAndQuantitiesList();
+        LOGGER.info("DEBUG five best Sells = {}", fiveBestSellOrdersAndQuantitiesList);
+
+        List<Double> convertedBuyPrices = new ArrayList<>();
+        for (long price : fiveBestBuyOrdersAndQuantitiesList.getKey()) {
+            convertedBuyPrices.add((price / 1000.0));
+        }
+
+        List<Double> convertedSellPrices = new ArrayList<>();
+        for (long price : fiveBestSellOrdersAndQuantitiesList.getKey()) {
+            convertedSellPrices.add((price / 1000.0));
+        }
+
+        LOGGER.info("DEBUG five best Buys = {}", fiveBestBuyOrdersAndQuantitiesList);
+        LOGGER.info("DEBUG converted buys = {}", convertedBuyPrices);
+        LOGGER.info("DEBUG five best Sells = {}", fiveBestSellOrdersAndQuantitiesList);
+        LOGGER.info("DEBUG converted sells = {}", convertedSellPrices);
+
+
+        Service.OrderBook.Builder orderBookBuilder = Service.OrderBook.newBuilder();
+
+        orderBookBuilder.addAllBuyQuantities(fiveBestBuyOrdersAndQuantitiesList.getValue());
+        orderBookBuilder.addAllBuyPrices(convertedBuyPrices);
+        orderBookBuilder.addAllSellQuantities(fiveBestSellOrdersAndQuantitiesList.getValue());
+        orderBookBuilder.addAllSellPrices(convertedSellPrices);
+
+        return orderBookBuilder.build();
+    }
 
     private OrderBookSide getOrderSide(BuySell buySell) {
         if (buySell == BuySell.BUY) {

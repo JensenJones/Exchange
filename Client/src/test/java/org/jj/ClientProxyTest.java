@@ -21,15 +21,17 @@ public class ClientProxyTest {
     private OrderServiceServer server;
     private ClientProxy clientA;
     private int productId;
+    private final String productSymbol = "JJ";
+    Expiry expiry = Expiry.GTC;
 
     @BeforeEach
     void setUp() throws IOException {
         ProductStore productStore = new ProductStore(new IntIdProvider());
-        productId = productStore.addProduct("JENSEN JONES", "JJ");
+        productStore.addProduct("JENSEN JONES", "JJ");
 
         server = new OrderServiceServer(PORT, new MatchingEngineProvider(productStore), new OrderStore());
         server.start();
-        channel = ManagedChannelBuilder.forAddress("localhost", PORT).usePlaintext().build();
+        channel = Grpc.newChannelBuilder(String.format("localhost:%d", PORT), InsecureChannelCredentials.create()).build();
         clientA = new ClientProxy(channel);
 
         assertThat(clientA).isNotNull();
@@ -51,22 +53,22 @@ public class ClientProxyTest {
 
     @Test
     void shouldCreateOrder() {
-        int orderAId = clientA.createOrder(productId, 10, 10, BuySell.BUY);
+        int orderAId = clientA.createOrder(productSymbol, BuySell.BUY, 10, 10, expiry);
         assertThat(orderAId).isGreaterThanOrEqualTo(1);
 
-        int orderBId = clientA.createOrder(productId, 10, 5, BuySell.SELL);
+        int orderBId = clientA.createOrder(productSymbol, BuySell.SELL, 5, 10, expiry);
         assertThat(orderBId).isGreaterThanOrEqualTo(2);
     }
 
     @Test
     void shouldFailToCreateIncorrectOrder() {
-        int orderId = clientA.createOrder(-10, 10, 10, BuySell.BUY);
+        int orderId = clientA.createOrder("ABC", BuySell.BUY, 10, 10, expiry);
         assertThat(orderId).isEqualTo(-1);
     }
 
     @Test
     void shouldCancelOrder() {
-        int orderId = clientA.createOrder(productId, 10, 10, BuySell.BUY);
+        int orderId = clientA.createOrder(productSymbol, BuySell.BUY, 10, 10, expiry);
         assertThat(orderId).isGreaterThanOrEqualTo(1);
 
         boolean cancelResult = clientA.cancelOrder(orderId);
@@ -78,8 +80,8 @@ public class ClientProxyTest {
     void shouldFillTradeBetweenTwoClients() {
         ClientProxy clientB = new ClientProxy(channel);
 
-        int clientAOrderId = clientA.createOrder(productId, 10, 10, BuySell.BUY);
-        int clientBOrderId = clientB.createOrder(productId, 10, 10, BuySell.SELL);
+        int clientAOrderId = clientA.createOrder(productSymbol, BuySell.BUY, 10, 10, expiry);
+        int clientBOrderId = clientB.createOrder(productSymbol, BuySell.SELL, 10, 10, expiry);
 
         boolean clientACancelRequest = clientA.cancelOrder(clientAOrderId);
         boolean clientBCancelRequest = clientB.cancelOrder(clientBOrderId);

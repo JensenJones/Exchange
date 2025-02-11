@@ -1,6 +1,7 @@
 package org.jj.matchingEngine;
 
 import org.jj.BuySell;
+import org.jj.Service;
 import org.jj.providers.IdProvider;
 import org.jj.providers.TimestampProvider;
 import org.slf4j.Logger;
@@ -29,5 +30,9 @@ public class MatchingEngineImpl implements MatchingEngine {
     @Override
     public boolean cancelOrder(int id) {
         return orderBook.cancelOrder(id);
+    }
+
+    public Service.OrderBook getOrderBook() {
+        return orderBook.getOrderBook();
     }
 }

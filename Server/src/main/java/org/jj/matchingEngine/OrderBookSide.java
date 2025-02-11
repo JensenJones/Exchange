@@ -101,6 +101,19 @@ public class OrderBookSide {
         return quantityTraded;
     }
 
+    public AbstractMap.SimpleEntry<List<Long>, List<Long>> getFiveBestOrdersAndQuantitiesList() {
+        List<Long> prices = new ArrayList<>();
+        List<Long> quantities = new ArrayList<>();
+
+        for (int i = 0; i < Math.min(ordersByPrice.size(), 5); i++) {
+            OrdersAtPrice ordersAtPrice = ordersByPrice.get(i);
+            prices.add(ordersAtPrice.getPrice());
+            quantities.add(ordersAtPrice.getTotalBuyQuantity());
+        }
+
+        return new AbstractMap.SimpleEntry<>(prices, quantities);
+    }
+
     protected long trade(int id, long quantityRemaining, Node current) {
         long tradeQuantity = Math.min(quantityRemaining, current.getQuantityRemaining());
         // TODO DO SOMETHING WITH THIS MATCH
@@ -108,8 +121,8 @@ public class OrderBookSide {
         current.trade(tradeQuantity);
         return tradeQuantity;
     }
-
     protected static class OrdersAtPrice {
+
         private Node head;
         private Node tail;
         private final long price;
@@ -143,6 +156,20 @@ public class OrderBookSide {
 
         public Node gethead() {
             return head;
+        }
+
+        public long getTotalBuyQuantity() {
+            long total = 0;
+
+            Node temp = head;
+            while (temp != null) {
+                LOGGER.info("Current node quantity = {}", temp.getQuantityRemaining());
+                total += temp.getQuantityRemaining();
+                temp = temp.getNext();
+                LOGGER.info("Total updated, total = {}", total);
+            }
+
+            return total;
         }
     }
 
@@ -193,6 +220,18 @@ public class OrderBookSide {
 
         public long getPrice() {
             return price;
+        }
+
+        @Override
+        public String toString() {
+            return "Node{" +
+                    "id=" + id +
+                    ", quantity=" + quantity +
+                    ", quantityFilled=" + quantityFilled +
+                    ", price=" + price +
+                    ", next=" + next +
+                    ", prev=" + prev +
+                    '}';
         }
     }
 }
