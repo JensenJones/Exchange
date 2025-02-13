@@ -73,11 +73,13 @@ public class ClientProxy {
 
     private static @NotNull StreamObserver<Service.OrderBook> getResponseObserver(TopOfBookSubscriber listener) {
         return new StreamObserver<Service.OrderBook>() {
+            int messages = 0;
+
             @Override
             public void onNext(Service.OrderBook orderBook) {
-                LOGGER.info("Received order book update");
                 listener.onOrderBookUpdate(orderBook);
-
+                messages++;
+                LOGGER.info("Received order book update {}", messages);
             }
 
             @Override

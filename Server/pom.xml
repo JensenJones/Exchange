@@ -15,6 +15,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jib.from.platforms>linux/arm64</jib.from.platforms>
     </properties>
 
     <dependencies>
@@ -95,11 +96,13 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <finalName>${project.artifactId}-shaded</finalName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>org.jj.orderService.ServerMain</mainClass>
                         </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                     </transformers>
                 </configuration>
             </plugin>
@@ -112,6 +115,27 @@
                     <to>
                         <image>registry.hub.docker.com/${env.DOCKER_USERNAME}/exchange-server:latest</image>
                     </to>
+                    <container>
+                        <mainClass>org.jj.orderService.ServerMain</mainClass>
+<!--                        <args>-->
+<!--                            <arg>-jar</arg>-->
+<!--                            <arg>/app/${project.build.finalName}-shaded.jar</arg>-->
+<!--                        </args>-->
+
+<!--                        <entrypoint>-->
+<!--                            <entrypoint>java</entrypoint>-->
+<!--                            <entrypoint>-jar</entrypoint>-->
+<!--                            <entrypoint>/app/Server-shaded.jar</entrypoint>-->
+<!--                        </entrypoint>-->
+
+                        <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+                    </container>
+
+<!--                    <extraDirectories>-->
+<!--                        <paths>-->
+<!--                            <path>${project.build.directory}</path>-->
+<!--                        </paths>-->
+<!--                    </extraDirectories>-->
                 </configuration>
             </plugin>
 

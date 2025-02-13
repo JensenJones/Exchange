@@ -347,11 +347,6 @@ public class TradeMenu extends JFrame {
         List<Double> sellPrices = orderBook.getSellPricesList();
         List<Long> sellQuantities = orderBook.getSellQuantitiesList();
 
-        System.out.println("DEBUG, buy Quantities = " + buyQuantities);
-        System.out.println("DEBUG, buy Prices = " + buyPrices);
-        System.out.println("DEBUG, sell Prices = " + sellPrices);
-        System.out.println("DEBUG, sell Quantities = " + sellQuantities);
-
         int maxRows = Math.min(Math.max(buyQuantities.size(), sellQuantities.size()), 5);
 
         for (int i = 0; i < maxRows; i++) {
