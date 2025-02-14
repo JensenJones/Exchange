@@ -117,25 +117,14 @@
                     </to>
                     <container>
                         <mainClass>org.jj.orderService.ServerMain</mainClass>
-<!--                        <args>-->
-<!--                            <arg>-jar</arg>-->
-<!--                            <arg>/app/${project.build.finalName}-shaded.jar</arg>-->
-<!--                        </args>-->
 
-<!--                        <entrypoint>-->
-<!--                            <entrypoint>java</entrypoint>-->
-<!--                            <entrypoint>-jar</entrypoint>-->
-<!--                            <entrypoint>/app/Server-shaded.jar</entrypoint>-->
-<!--                        </entrypoint>-->
+                        <ports>
+                            <port>50051</port>
+                        </ports>
 
                         <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>
 
-<!--                    <extraDirectories>-->
-<!--                        <paths>-->
-<!--                            <path>${project.build.directory}</path>-->
-<!--                        </paths>-->
-<!--                    </extraDirectories>-->
                 </configuration>
             </plugin>
 

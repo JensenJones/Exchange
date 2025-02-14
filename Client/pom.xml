@@ -118,40 +118,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>jib-maven-plugin</artifactId>
-                <version>3.4.4</version>
-                <configuration>
-                    <from>
-                        <image>eclipse-temurin:21-jdk</image>
-                    </from>
-
-                    <to>
-                        <image>registry.hub.docker.com/${env.DOCKER_USERNAME}/exchange-client:latest</image>
-                    </to>
-                    <container>
-                        <mainClass>org.jj.ClientMain</mainClass>
-<!--                        <args>-->
-<!--                            <arg>-jar</arg>-->
-<!--                            <arg>/app/${project.build.finalName}-shaded.jar</arg>-->
-<!--                        </args>-->
-
-<!--                        <entrypoint>-->
-<!--                            <entrypoint>java</entrypoint>-->
-<!--                            <entrypoint>-jar</entrypoint>-->
-<!--                            <entrypoint>/app/Server-shaded.jar</entrypoint>-->
-<!--                        </entrypoint>-->
-
-                        <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-                    </container>
-<!--                    <extraDirectories>-->
-<!--                        <paths>-->
-<!--                            <path>${project.build.directory}</path>-->
-<!--                        </paths>-->
-<!--                    </extraDirectories>-->
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
