@@ -123,6 +123,7 @@ public class ClientMain extends JFrame {
     public static void main(String[] args) {
         ManagedChannel channel = Grpc.newChannelBuilder(String.format("localhost:%d", PORT), InsecureChannelCredentials.create()).build();
         clientProxy = new ClientProxy(channel);
+        balance = 1000000000;
         SwingUtilities.invokeLater(() -> new ClientMain(balance));
     }
 }

@@ -7,9 +7,9 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TradeMenu extends JFrame {
     private static double balance;
@@ -21,7 +21,7 @@ public class TradeMenu extends JFrame {
     private final JLabel balanceLabel;
     private final JTextField quantityField;
     private final JTextField priceField;
-    private final JComboBox<Expiry> expiryDropdown;
+    private final JComboBox<String> expiryDropdown;
     private String selectedProductSymbol;
     private TopOfBookSubscriberImpl topOfBookSubscriber;
 
@@ -59,7 +59,10 @@ public class TradeMenu extends JFrame {
         add(titlePanel, "span, growx, wrap");
 
         // Product Selection (Dropdown)
-        productDropdown = new JComboBox<>(productSymbols.toArray(new String[0]));
+        List<String> productSymbolsList = new ArrayList<>();
+        productSymbolsList.add("");
+        productSymbolsList.addAll(productSymbols);
+        productDropdown = new JComboBox<>(productSymbolsList.toArray(new String[0]));
         productDropdown.setFont(new Font("Arial", Font.BOLD, 16));
         productDropdown.setBackground(new Color(200, 200, 200));
         productDropdown.setForeground(Color.BLACK);
@@ -157,7 +160,10 @@ public class TradeMenu extends JFrame {
         add(priceField, "growx, pushx, wrap");
 
         // Expiry Dropdown
-        JComboBox<Expiry> expiryDropdown = new JComboBox<>(Expiry.values());
+        List<String> expiries = new ArrayList<>();
+        expiries.add("");
+        Arrays.stream(Expiry.values()).forEach(e -> expiries.add(e.toString()));
+        JComboBox<String> expiryDropdown = new JComboBox<>(expiries.toArray(new String[0]));
         expiryDropdown.setForeground(Color.BLACK);
         expiryDropdown.setFont(new Font("Arial", Font.BOLD, 16));
         expiryDropdown.setBackground(new Color(200, 200, 200));
@@ -216,23 +222,29 @@ public class TradeMenu extends JFrame {
 
     private void makeTrade() {
         String productSymbol = (String) productDropdown.getSelectedItem();
-        Expiry expiry = Expiry.valueOf((String) expiryDropdown.getSelectedItem());
+        Expiry expiry;
+        try {
+            expiry = Expiry.valueOf((String) expiryDropdown.getSelectedItem());
+        } catch (IllegalArgumentException e) {
+            flashBackgroundColor(Color.red);
+            return;
+        }
 
-        if (priceField.getText().isEmpty() ||
-            quantityField.getText().isEmpty() ||
-            productSymbol == null ||
-            buySell == null ||
-            expiry == null ||
-            Double.parseDouble(priceField.getText()) * Long.parseLong(quantityField.getText()) > balance) {
-                flashBackgroundColor(Color.RED);
-                return;
-        } else {
+        if (!priceField.getText().isEmpty() &&
+                !quantityField.getText().isEmpty() &&
+                !productSymbol.equals("") &&
+                buySell != null &&
+                Double.parseDouble(priceField.getText()) * Long.parseLong(quantityField.getText()) <= balance) {
+
             double price = Double.parseDouble(priceField.getText());
             long quantity = Long.parseLong(quantityField.getText());
             updateBalance(balance - (price * quantity));
             clientProxy.createOrder(productSymbol, buySell, price, quantity, expiry);
             flashBackgroundColor(Color.GREEN);
+        } else {
+            flashBackgroundColor(Color.RED);
         }
+
     }
 
     private void flashBackgroundColor(Color color) {

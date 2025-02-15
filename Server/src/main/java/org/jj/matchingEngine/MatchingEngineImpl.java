@@ -7,8 +7,6 @@ import org.jj.providers.IdProvider;
 import org.jj.providers.TimestampProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MatchingEngineImpl implements MatchingEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(MatchingEngineImpl.class);
@@ -41,5 +39,9 @@ public class MatchingEngineImpl implements MatchingEngine {
 
     public void removeOrderBookListener(StreamObserver<Service.OrderBook> responseObserver) {
         orderBook.getListener().removeResponseObserver(responseObserver);
+    }
+
+    public Service.OrderBook getInitialOrderBookForSubscriber() {
+        return orderBook.getOrderBook();
     }
 }

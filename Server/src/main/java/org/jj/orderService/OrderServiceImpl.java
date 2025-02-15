@@ -3,7 +3,6 @@ package org.jj.orderService;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
-import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.jj.BuySell;
@@ -85,6 +84,9 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
             responseObserver.onError(new RuntimeException("No matching engine found for symbol: " + symbol));
             return;
         }
+
+        // Initial return of order book in current state then listen for changes
+        responseObserver.onNext(matchingEngine.getInitialOrderBookForSubscriber());
 
         matchingEngine.addOrderBookListener(responseObserver);
 

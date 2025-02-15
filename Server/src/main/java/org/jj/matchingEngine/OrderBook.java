@@ -1,6 +1,5 @@
 package org.jj.matchingEngine;
 
-import io.grpc.stub.StreamObserver;
 import org.jetbrains.annotations.Nullable;
 import org.jj.BuySell;
 import org.jj.Service;
@@ -30,7 +29,7 @@ public class OrderBook {
         this.listener = listener;
     }
 
-    public boolean cancelOrder(int id) {
+    boolean cancelOrder(int id) {
         BuySell buySell = getOrderSide(id);
         if (buySell == null) {
             return false;
@@ -39,7 +38,7 @@ public class OrderBook {
         return sameSideOrders.removeOrder(id);
     }
 
-    private Service.OrderBook getOrderBook() {
+    Service.OrderBook getOrderBook() {
         LOGGER.info("Retrieving order book");
         AbstractMap.SimpleEntry<List<Long>, List<Long>> fiveBestBuyOrdersAndQuantitiesList = buySide.getFiveBestOrdersAndQuantitiesList();
         AbstractMap.SimpleEntry<List<Long>, List<Long>> fiveBestSellOrdersAndQuantitiesList = sellSide.getFiveBestOrdersAndQuantitiesList();
