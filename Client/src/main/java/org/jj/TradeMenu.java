@@ -7,7 +7,9 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TradeMenu extends JFrame {
     private static double balance;
@@ -19,7 +21,7 @@ public class TradeMenu extends JFrame {
     private final JLabel balanceLabel;
     private final JTextField quantityField;
     private final JTextField priceField;
-    private final JComboBox<String> expiryDropdown;
+    private final JComboBox<Expiry> expiryDropdown;
     private String selectedProductSymbol;
     private TopOfBookSubscriberImpl topOfBookSubscriber;
 
@@ -155,7 +157,7 @@ public class TradeMenu extends JFrame {
         add(priceField, "growx, pushx, wrap");
 
         // Expiry Dropdown
-        JComboBox<String> expiryDropdown = new JComboBox<>(new String[]{"GTC", "IOC", "FOK"});
+        JComboBox<Expiry> expiryDropdown = new JComboBox<>(Expiry.values());
         expiryDropdown.setForeground(Color.BLACK);
         expiryDropdown.setFont(new Font("Arial", Font.BOLD, 16));
         expiryDropdown.setBackground(new Color(200, 200, 200));
