@@ -163,10 +163,8 @@ public class OrderBookSide {
 
             Node temp = head;
             while (temp != null) {
-                LOGGER.info("Current node quantity = {}", temp.getQuantityRemaining());
                 total += temp.getQuantityRemaining();
                 temp = temp.getNext();
-                LOGGER.info("Total updated, total = {}", total);
             }
 
             return total;

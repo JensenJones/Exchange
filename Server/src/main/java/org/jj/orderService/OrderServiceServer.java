@@ -20,11 +20,12 @@ public class OrderServiceServer {
     public OrderServiceServer(int port) {
         this.port = port;
 
-        ProductStore productStoreWithProductJJ = new ProductStore(new IntIdProvider());
-        productStoreWithProductJJ.addProduct("Jensen Stock", "JJ");
+        ProductStore productStoreWithProducts = new ProductStore(new IntIdProvider());
+        productStoreWithProducts.addProduct("Jensen Stock", "JJ");
+        productStoreWithProducts.addProduct("Secondary Stock", "NOOO");
 
         this.server = ServerBuilder.forPort(this.port)
-                .addService(new OrderServiceImpl(new MatchingEngineProvider(productStoreWithProductJJ), new OrderStore()))
+                .addService(new OrderServiceImpl(new MatchingEngineProvider(productStoreWithProducts), new OrderStore()))
                 .addService(ProtoReflectionService.newInstance()) // Enable reflection
                 .build();
     }
