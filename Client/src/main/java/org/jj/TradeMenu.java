@@ -1,5 +1,6 @@
 package org.jj;
 
+import ch.qos.logback.core.net.server.Client;
 import net.miginfocom.swing.MigLayout;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,9 +11,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class TradeMenu extends JFrame {
-    private static double balance;
     private final JComboBox<String> productDropdown;
     private final JLabel selectedProductLabel;
     private static BuySell buySell;
@@ -25,8 +26,7 @@ public class TradeMenu extends JFrame {
     private String selectedProductSymbol;
     private TopOfBookSubscriberImpl topOfBookSubscriber;
 
-    public TradeMenu(double balance, ClientProxy clientProxy) {
-        TradeMenu.balance = balance;
+    public TradeMenu(ClientProxy clientProxy) {
         this.clientProxy = clientProxy;
         List<String> productSymbols = clientProxy.getTradingProductsList();
 
@@ -47,7 +47,7 @@ public class TradeMenu extends JFrame {
         title.setForeground(Color.WHITE);
         titlePanel.add(title, BorderLayout.WEST);
 
-        JLabel balanceLabel = new JLabel("Balance: $" + this.balance);
+        JLabel balanceLabel = new JLabel("Balance: $" + ClientAccount.getInstance().getBalance());
         balanceLabel.setFont(new Font("Arial", Font.PLAIN, 24));
         balanceLabel.setForeground(new Color(225, 187, 6));
         balanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -232,14 +232,19 @@ public class TradeMenu extends JFrame {
 
         if (!priceField.getText().isEmpty() &&
                 !quantityField.getText().isEmpty() &&
-                !productSymbol.equals("") &&
+                !Objects.equals(productSymbol, "") &&
                 buySell != null &&
-                Double.parseDouble(priceField.getText()) * Long.parseLong(quantityField.getText()) <= balance) {
+                Double.parseDouble(priceField.getText()) * Long.parseLong(quantityField.getText()) <= ClientAccount.getInstance().getBalance()) {
 
             double price = Double.parseDouble(priceField.getText());
             long quantity = Long.parseLong(quantityField.getText());
-            updateBalance(balance - (price * quantity));
             clientProxy.createOrder(productSymbol, buySell, price, quantity, expiry);
+
+            ClientAccount.getInstance().addBalance(-(price * quantity));
+            balanceLabel.setText("Balance: $" + ClientAccount.getInstance().getBalance());
+            balanceLabel.revalidate();
+            balanceLabel.repaint();
+
             flashBackgroundColor(Color.GREEN);
         } else {
             flashBackgroundColor(Color.RED);
@@ -291,21 +296,17 @@ public class TradeMenu extends JFrame {
     private @NotNull JScrollPane getjScrollPane() {
         String[] columnNames = {"Volume", "Bid", "Ask", "Volume"};
 
-        // Create a DefaultTableModel with no rows initially.
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
-        // Create the JTable using the model.
         JTable orderBookTable = new JTable(model);
         orderBookTable.setFont(new Font("Arial", Font.PLAIN, 16));
         orderBookTable.setBackground(new Color(70, 70, 70));
         orderBookTable.setForeground(Color.WHITE);
         orderBookTable.setRowHeight(30);
 
-        this.orderBookTable = orderBookTable;
+        TradeMenu.orderBookTable = orderBookTable;
 
-        // Put the table in a scroll pane.
-        JScrollPane scrollPane = new JScrollPane(orderBookTable);
-        return scrollPane;
+        return new JScrollPane(orderBookTable);
     }
 
     private JButton createBackButton() {
@@ -320,7 +321,7 @@ public class TradeMenu extends JFrame {
         button.setContentAreaFilled(true);
 
         button.addActionListener(e -> {
-            new ClientMain(balance);
+            new ClientMain();
             dispose();
         });
 
@@ -349,7 +350,7 @@ public class TradeMenu extends JFrame {
 
         selectedProductLabel.setText("Selected Product: " + selectedProductSymbol);
 
-        this.topOfBookSubscriber = new TopOfBookSubscriberImpl(clientProxy, selectedProductSymbol, orderBook -> fillOrderBookTable(orderBook));
+        this.topOfBookSubscriber = new TopOfBookSubscriberImpl(clientProxy, selectedProductSymbol, this::fillOrderBookTable);
     }
 
     private void fillOrderBookTable(Service.OrderBook orderBook) {
@@ -372,14 +373,5 @@ public class TradeMenu extends JFrame {
 
             tableModel.addRow(row);
         }
-    }
-
-    public void updateBalance(double newBalance) {
-        this.balance = newBalance;
-        // Update the label's text
-        balanceLabel.setText("Balance: $" + newBalance);
-        // Optionally, revalidate and repaint if needed:
-        balanceLabel.revalidate();
-        balanceLabel.repaint();
     }
 }

@@ -121,6 +121,7 @@ public class OrderBookSide {
         current.trade(tradeQuantity);
         return tradeQuantity;
     }
+
     protected static class OrdersAtPrice {
 
         private Node head;

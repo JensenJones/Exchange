@@ -9,12 +9,10 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 public class DepositMenu extends JFrame {
-    private double balance;
-    private JLabel balanceLabel;
-    private JTextField depositField;
+    private final JLabel balanceLabel;
+    private final JTextField depositField;
 
-    public DepositMenu(double balance) {
-        this.balance = balance;
+    public DepositMenu() {
 
         setTitle("💰 Deposit Funds");
         setSize(500, 280);
@@ -42,7 +40,7 @@ public class DepositMenu extends JFrame {
         JPanel depositPanel = new JPanel(new MigLayout("insets 0", "[grow]10[shrink]"));
         depositPanel.setOpaque(false);
 
-        depositField = new JTextField("Deposit amount", 10);
+        depositField = new NumericTextField(10, 2);
         depositField.setFont(new Font("Arial", Font.PLAIN, 20));
         depositField.setForeground(Color.GRAY);
         depositField.setBackground(new Color(50, 50, 50));
@@ -71,7 +69,7 @@ public class DepositMenu extends JFrame {
         add(depositPanel, "growx, wrap");
 
         // Balance Display (Bottom Left)
-        balanceLabel = new JLabel("Current Balance: $" + balance);
+        balanceLabel = new JLabel("Current Balance: $" + ClientAccount.getInstance().getBalance());
         balanceLabel.setFont(new Font("Arial", Font.BOLD, 18));
         balanceLabel.setForeground(Color.WHITE);
         add(balanceLabel, "align left");
@@ -106,7 +104,7 @@ public class DepositMenu extends JFrame {
         button.setContentAreaFilled(true);
 
         button.addActionListener(e -> {
-            new ClientMain(balance);  // Open previous window
+            new ClientMain();  // Open previous window
             dispose();  // Close deposit window
         });
 
@@ -114,17 +112,9 @@ public class DepositMenu extends JFrame {
     }
 
     private void handleDeposit() {
-        try {
-            double depositAmount = Double.parseDouble(depositField.getText());
-            if (depositAmount <= 0) {
-                JOptionPane.showMessageDialog(this, "Invalid amount. Enter a positive number.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            balance += depositAmount;
-            balanceLabel.setText("Current Balance: $" + balance);
-            depositField.setText("");
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        double depositAmount = Double.parseDouble(depositField.getText());
+        ClientAccount.getInstance().addBalance(depositAmount);
+        balanceLabel.setText("Current Balance: $" + ClientAccount.getInstance().getBalance());
+        depositField.setText("");
     }
 }

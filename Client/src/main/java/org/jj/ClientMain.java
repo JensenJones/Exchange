@@ -2,19 +2,16 @@ package org.jj;
 
 import io.grpc.*;
 import net.miginfocom.swing.*;
+import org.checkerframework.checker.units.qual.C;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class ClientMain extends JFrame {
     private static ClientProxy clientProxy;
-    private static double balance;
-    private static double totalDeposited;
     private static final int PORT = 50051;
 
-    ClientMain(double balance) {
-        totalDeposited += balance - ClientMain.balance;
-        ClientMain.balance = balance;
-
+    ClientMain() {
         setTitle("Jensen's Exchange");
         setSize(1560, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,20 +44,19 @@ public class ClientMain extends JFrame {
         add(buttonPanel, "grow");
 
         tradeBtn.addActionListener(e -> {
-            new TradeMenu(balance, clientProxy);
+            new TradeMenu(clientProxy);
             dispose();
         });
 
         pnlBtn.addActionListener(e -> {
-            new PnlMenu(balance, totalDeposited);
+            new PnlMenu();
             dispose();
         });
 
         depositBtn.addActionListener(e -> {
-            new DepositMenu(balance);
+            new DepositMenu();
             dispose();
         });
-
 
         setVisible(true);
     }
@@ -123,7 +119,6 @@ public class ClientMain extends JFrame {
     public static void main(String[] args) {
         ManagedChannel channel = Grpc.newChannelBuilder(String.format("localhost:%d", PORT), InsecureChannelCredentials.create()).build();
         clientProxy = new ClientProxy(channel);
-        balance = 1000000000;
-        SwingUtilities.invokeLater(() -> new ClientMain(balance));
+        SwingUtilities.invokeLater(() -> new ClientMain());
     }
 }

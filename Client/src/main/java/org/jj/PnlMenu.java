@@ -5,12 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class PnlMenu extends JFrame {
-    private final double balance;
 
-    public PnlMenu(double balance, double totalDeposited) {
-        this.balance = balance;
-        double pnl = balance - totalDeposited;
-
+    public PnlMenu() {
         setTitle("📊 Profit & Loss");
         setSize(500, 320); // Reduced size for a cleaner look
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -39,15 +35,19 @@ public class PnlMenu extends JFrame {
         pnlPanel.setBorder(BorderFactory.createLineBorder(new Color(100, 100, 100), 3)); // Subtle border
         pnlPanel.setPreferredSize(new Dimension(400, 100));
 
-        JLabel pnlLabel = new JLabel("$" + String.format("%.2f", pnl), SwingConstants.CENTER);
+        JLabel pnlLabel = new JLabel("$" + String.format("%.2f", ClientAccount.getInstance().getBalance() -
+                ClientAccount.getInstance().getDepositedAmount()),
+                    SwingConstants.CENTER);
+
         pnlLabel.setFont(new Font("Arial", Font.BOLD, 80));
-        pnlLabel.setForeground(pnl >= 0 ? Color.GREEN : Color.RED);
+        pnlLabel.setForeground((ClientAccount.getInstance().getBalance() -
+                ClientAccount.getInstance().getDepositedAmount() >= 0) ? Color.GREEN : Color.RED);
 
         pnlPanel.add(pnlLabel);
         add(pnlPanel, "align center");
 
         // Balance Display (Bottom Left)
-        JLabel balanceLabel = new JLabel("Current Balance: $" + String.format("%.2f", balance));
+        JLabel balanceLabel = new JLabel("Current Balance: $" + String.format("%.2f", ClientAccount.getInstance().getBalance()));
         balanceLabel.setFont(new Font("Arial", Font.BOLD, 20));
         balanceLabel.setForeground(Color.WHITE);
         add(balanceLabel, "dock south, gapleft 10");
@@ -67,7 +67,7 @@ public class PnlMenu extends JFrame {
         button.setContentAreaFilled(true);
 
         button.addActionListener(e -> {
-            new ClientMain(balance);  // Open previous window
+            new ClientMain();  // Open previous window
             dispose();  // Close PNL window
         });
 
