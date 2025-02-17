@@ -2,6 +2,7 @@ package org.jj.matchingEngine;
 
 import io.grpc.stub.StreamObserver;
 import org.jj.BuySell;
+import org.jj.Expiry;
 import org.jj.Service;
 import org.jj.providers.IdProvider;
 import org.jj.providers.TimestampProvider;
@@ -22,9 +23,15 @@ public class MatchingEngineImpl implements MatchingEngine {
     }
 
     @Override
-    public int createOrder(long quantity, long price, BuySell buySell) {
+    public int createOrder(long quantity, long price, BuySell buySell, Expiry expiry) {
         int id = idProvider.generateId();
-        orderBook.addOrder(id, buySell, quantity, price);
+
+        switch (expiry) {
+            case GTC -> orderBook.addGtcOrder(id, buySell, quantity, price);
+            case IOC -> orderBook.addIocOrder(id, buySell, quantity, price);
+            case FOK -> orderBook.addFokOrder(id, buySell, quantity, price);
+        }
+
         return id;
     }
 

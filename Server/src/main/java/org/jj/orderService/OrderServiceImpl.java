@@ -6,6 +6,7 @@ import com.google.protobuf.StringValue;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.jj.BuySell;
+import org.jj.Expiry;
 import org.jj.OrderServiceGrpc;
 import org.jj.matchingEngine.OrderStore;
 import org.jj.Service;
@@ -32,14 +33,16 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
 
         MatchingEngineImpl matchingEngine = matchingEngineProvider.getMatchingEngine(productSymbol);
 
-        BuySell buySell = request.getBuySell() == Service.BuySell.BUY ? BuySell.BUY : BuySell.SELL;
         int productId = matchingEngineProvider.productSymbolToId(productSymbol);
 
         if (matchingEngine == null) {
             LOGGER.error("Product does not exist: Matching Engine == null");
             responseObserver.onError(new IllegalArgumentException("Product does not exist"));
         } else {
-            int orderId = matchingEngine.createOrder(request.getQuantity(), Math.round(request.getPrice() * 1000), buySell); // TODO USE THE EXPIRY TYPE TOO
+            int orderId = matchingEngine.createOrder(request.getQuantity(),
+                                                     Math.round(request.getPrice() * 1000),
+                                                     BuySell.valueOf(request.getBuySell().toString()),
+                                                     Expiry.valueOf(request.getExpiry().toString()));
 
             orderStore.addOrder(orderId, productId);
 

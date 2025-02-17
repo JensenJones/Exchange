@@ -80,13 +80,13 @@ public class OrderBookSide {
                 break;
             }
 
-            Node current = ordersAtPrice.gethead();
-            while (current != null) {
-                quantityTraded += trade(id, quantity - quantityTraded, current);
+            Node currentNode = ordersAtPrice.gethead();
+            while (currentNode != null) {
+                quantityTraded += trade(id, quantity - quantityTraded, currentNode);
 
-                if (current.getQuantityRemaining() == 0) {
-                    idToNode.remove(current.getId());
-                    ordersAtPrice.removeNode(current);
+                if (currentNode.getQuantityRemaining() == 0) {
+                    idToNode.remove(currentNode.getId());
+                    ordersAtPrice.removeNode(currentNode);
                     if (ordersAtPrice.gethead() == null) {
                         iterator.remove();
                     }
@@ -95,10 +95,38 @@ public class OrderBookSide {
                 if (quantityTraded == quantity) {
                     break;
                 }
-                current = current.getNext();
+                currentNode = currentNode.getNext();
             }
         }
         return quantityTraded;
+    }
+
+    public Boolean matchMustFillOrder(int id, long quantity, long price) {
+        long fillable = 0;
+
+        for (OrdersAtPrice ordersAtPrice : ordersByPrice) {
+            if (priceComparator.compare(ordersAtPrice.getPrice(), price) > 0) {
+                break;
+            }
+
+            Node currentNode = ordersAtPrice.gethead();
+
+            while (currentNode != null) {
+                fillable += currentNode.getQuantityRemaining();
+                currentNode = currentNode.next;
+            }
+
+            if (fillable >= quantity) {
+                break;
+            }
+        }
+
+        if (fillable < quantity) {
+            return false;
+        }
+
+        matchOrder(id, quantity, price);
+        return true;
     }
 
     public AbstractMap.SimpleEntry<List<Long>, List<Long>> getFiveBestOrdersAndQuantitiesList() {

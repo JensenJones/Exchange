@@ -16,12 +16,31 @@ public class OrderBook {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderBook.class);
     private final OrderBookUpdateListenerImpl listener;
 
-    public void addOrder(int id, BuySell buySell, long quantity, long price) {
-        LOGGER.info("Adding order, Order id = {}", id);
+    public void addGtcOrder(int id, BuySell buySell, long quantity, long price) {
+        LOGGER.info("ORDER ID '{}', Adding GTC order", id);
         long quantityFilled = getOrderSide(BuySell.getOtherSide(buySell)).matchOrder(id, quantity, price);
+
         if (quantityFilled < quantity) {
+            LOGGER.info("Order ID '{}' not filled, adding to orderBook", id);
             getOrderSide(buySell).addOrder(id, quantity, quantityFilled, price);
         }
+
+        listener.onOrderBookUpdate(getOrderBook());
+    }
+
+    public void addIocOrder(int id, BuySell buySell, long quantity, long price) {
+        LOGGER.info("Order ID '{}', Adding IOC order", id);
+        long quantityFilled = getOrderSide(BuySell.getOtherSide(buySell)).matchOrder(id, quantity, price);
+        LOGGER.info("Order ID '{}', QuantityFilled = {}", id, quantityFilled);
+
+        listener.onOrderBookUpdate(getOrderBook());
+    }
+
+    public void addFokOrder(int id, BuySell buySell, long quantity, long price) {
+        LOGGER.info("Order ID '{}', Adding FOK order", id);
+        Boolean filled = getOrderSide(BuySell.getOtherSide(buySell)).matchMustFillOrder(id, quantity, price);
+        LOGGER.info("Order ID '{}', Filled status = {}", id, filled);
+
         listener.onOrderBookUpdate(getOrderBook());
     }
 

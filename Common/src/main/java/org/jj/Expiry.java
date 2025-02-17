@@ -4,6 +4,5 @@ public enum Expiry {
     GTC,
     IOC,
     FOK,
-    AON,
     ;
 }
