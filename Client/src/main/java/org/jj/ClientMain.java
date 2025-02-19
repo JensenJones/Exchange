@@ -2,7 +2,6 @@ package org.jj;
 
 import io.grpc.*;
 import net.miginfocom.swing.*;
-import org.checkerframework.checker.units.qual.C;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +11,7 @@ public class ClientMain extends JFrame {
     private static final int PORT = 50051;
 
     ClientMain() {
-        setTitle("Jensen's Exchange");
+        setTitle("🚀 Jensen's Exchange 🚀");
         setSize(1560, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -28,19 +27,19 @@ public class ClientMain extends JFrame {
         add(exitPanel, "growx");
 
         JLabel title = new JLabel("🚀 Jensen's Exchange 🚀", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 100)); // Doubled font size
+        title.setFont(new Font("Arial", Font.BOLD, 100));
         title.setForeground(Color.WHITE);
         add(title, "gapbottom 40");
 
         JPanel buttonPanel = new JPanel(new MigLayout("fill, insets 0", "[grow, center]60[grow, center]60[grow, center]"));
 
         buttonPanel.setOpaque(false);
-        JButton tradeBtn = createLargeButton("📈 Trade");
-        JButton pnlBtn = createLargeButton("💹 View PNL");
-        JButton depositBtn = createLargeButton("💰 Deposit");
+        JButton tradeBtn = createLargeButton("Trade 📈");
+        JButton pnlBtn = createLargeButton("View PNL 💰");
+        JButton ordersBtn = createLargeButton("View Orders 💹");
         buttonPanel.add(tradeBtn, "grow");
         buttonPanel.add(pnlBtn, "grow");
-        buttonPanel.add(depositBtn, "grow");
+        buttonPanel.add(ordersBtn, "grow");
         add(buttonPanel, "grow");
 
         tradeBtn.addActionListener(e -> {
@@ -53,8 +52,8 @@ public class ClientMain extends JFrame {
             dispose();
         });
 
-        depositBtn.addActionListener(e -> {
-            new DepositMenu();
+        ordersBtn.addActionListener(e -> {
+            new ViewOrdersMenu();
             dispose();
         });
 

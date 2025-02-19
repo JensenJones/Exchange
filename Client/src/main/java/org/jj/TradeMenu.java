@@ -1,6 +1,5 @@
 package org.jj;
 
-import ch.qos.logback.core.net.server.Client;
 import net.miginfocom.swing.MigLayout;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +18,7 @@ public class TradeMenu extends JFrame {
     private static BuySell buySell;
     private final ClientProxy clientProxy;
     private static JTable orderBookTable;
-    private final JLabel balanceLabel;
+    private final JLabel productQuantityOwned;
     private final JTextField quantityField;
     private final JTextField priceField;
     private final JComboBox<String> expiryDropdown;
@@ -47,12 +46,12 @@ public class TradeMenu extends JFrame {
         title.setForeground(Color.WHITE);
         titlePanel.add(title, BorderLayout.WEST);
 
-        JLabel balanceLabel = new JLabel("Balance: $" + ClientAccount.getInstance().getBalance());
-        balanceLabel.setFont(new Font("Arial", Font.PLAIN, 24));
-        balanceLabel.setForeground(new Color(225, 187, 6));
-        balanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        this.balanceLabel = balanceLabel;
-        titlePanel.add(balanceLabel, BorderLayout.CENTER);
+        JLabel productQuantityOwned = new JLabel();
+        productQuantityOwned.setFont(new Font("Arial", Font.PLAIN, 24));
+        productQuantityOwned.setForeground(new Color(225, 187, 6));
+        productQuantityOwned.setHorizontalAlignment(SwingConstants.CENTER);
+        this.productQuantityOwned = productQuantityOwned;
+        titlePanel.add(productQuantityOwned, BorderLayout.CENTER);
 
         JButton backButton = createBackButton();
         titlePanel.add(backButton, BorderLayout.EAST);
@@ -231,19 +230,17 @@ public class TradeMenu extends JFrame {
         }
 
         if (!priceField.getText().isEmpty() &&
-                !quantityField.getText().isEmpty() &&
-                !Objects.equals(productSymbol, "") &&
-                buySell != null &&
-                Double.parseDouble(priceField.getText()) * Long.parseLong(quantityField.getText()) <= ClientAccount.getInstance().getBalance()) {
+            !quantityField.getText().isEmpty() &&
+            !Objects.equals(productSymbol, "") &&
+            buySell != null) { // TODO on sell must check for ownership of stock
 
             double price = Double.parseDouble(priceField.getText());
             long quantity = Long.parseLong(quantityField.getText());
             clientProxy.createOrder(productSymbol, buySell, price, quantity, expiry);
 
-            ClientAccount.getInstance().addBalance(-(price * quantity));
-            balanceLabel.setText("Balance: $" + ClientAccount.getInstance().getBalance());
-            balanceLabel.revalidate();
-            balanceLabel.repaint();
+            productQuantityOwned.setText(""); // TODO update with quantity owned
+            productQuantityOwned.revalidate();
+            productQuantityOwned.repaint();
 
             flashBackgroundColor(Color.GREEN);
         } else {

@@ -7,7 +7,7 @@ import java.awt.*;
 public class PnlMenu extends JFrame {
 
     public PnlMenu() {
-        setTitle("📊 Profit & Loss");
+        setTitle("Profit & Loss 📊");
         setSize(500, 320); // Reduced size for a cleaner look
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -35,22 +35,6 @@ public class PnlMenu extends JFrame {
         pnlPanel.setBorder(BorderFactory.createLineBorder(new Color(100, 100, 100), 3)); // Subtle border
         pnlPanel.setPreferredSize(new Dimension(400, 100));
 
-        JLabel pnlLabel = new JLabel("$" + String.format("%.2f", ClientAccount.getInstance().getBalance() -
-                ClientAccount.getInstance().getDepositedAmount()),
-                    SwingConstants.CENTER);
-
-        pnlLabel.setFont(new Font("Arial", Font.BOLD, 80));
-        pnlLabel.setForeground((ClientAccount.getInstance().getBalance() -
-                ClientAccount.getInstance().getDepositedAmount() >= 0) ? Color.GREEN : Color.RED);
-
-        pnlPanel.add(pnlLabel);
-        add(pnlPanel, "align center");
-
-        // Balance Display (Bottom Left)
-        JLabel balanceLabel = new JLabel("Current Balance: $" + String.format("%.2f", ClientAccount.getInstance().getBalance()));
-        balanceLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        balanceLabel.setForeground(Color.WHITE);
-        add(balanceLabel, "dock south, gapleft 10");
 
         setVisible(true);
     }
