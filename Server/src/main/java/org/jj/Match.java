@@ -1,3 +1,3 @@
 package org.jj;
 
-public record Match(int aggressorUuid, int passiveUuid, long amountTraded, long price, long timeStampMs) {}
+public record Match(int aggressorOrderId, int passiveOrderId, long quantityTraded, double price, long timeStampMs) {}

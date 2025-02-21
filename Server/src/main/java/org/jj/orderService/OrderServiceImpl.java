@@ -5,11 +5,8 @@ import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import org.jj.BuySell;
-import org.jj.Expiry;
-import org.jj.OrderServiceGrpc;
+import org.jj.*;
 import org.jj.matchingEngine.OrderStore;
-import org.jj.Service;
 import org.jj.matchingEngine.MatchingEngineImpl;
 import org.jj.providers.MatchingEngineProvider;
 import org.slf4j.Logger;
@@ -39,12 +36,17 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
             LOGGER.error("Product does not exist: Matching Engine == null");
             responseObserver.onError(new IllegalArgumentException("Product does not exist"));
         } else {
-            int orderId = matchingEngine.createOrder(request.getQuantity(),
-                                                     Math.round(request.getPrice() * 1000),
-                                                     BuySell.valueOf(request.getBuySell().toString()),
-                                                     Expiry.valueOf(request.getExpiry().toString()));
-
-            orderStore.addOrder(orderId, productId);
+            long quantity = request.getQuantity();
+            double price = request.getPrice();
+            BuySell buySell = BuySell.valueOf(request.getBuySell().toString());
+            Expiry expiry = Expiry.valueOf(request.getExpiry().toString());
+            int orderId = matchingEngine.createOrder(quantity,
+                                                     Math.round(price * 1000),
+                                                     buySell,
+                                                     expiry);
+            Order order = new Order(orderId, quantity, price);
+            orderStore.addOrderIdToProduct(orderId, productId);
+            orderStore.addOrder(order);
 
             responseObserver.onNext(Int32Value.of(orderId));
         }

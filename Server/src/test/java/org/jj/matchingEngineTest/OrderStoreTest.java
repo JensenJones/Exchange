@@ -15,10 +15,10 @@ class OrderStoreTest {
     }
 
     @Test
-    void shouldAddOrders() {
-        subject.addOrder(1, 1);
-        subject.addOrder(2, 1);
-        subject.addOrder(3, 2);
+    void shouldAddOrdersIdToProduct() {
+        subject.addOrderIdToProduct(1, 1);
+        subject.addOrderIdToProduct(2, 1);
+        subject.addOrderIdToProduct(3, 2);
 
         assertThat(subject.hasOrder(1)).isTrue();
         assertThat(subject.hasOrder(2)).isTrue();
@@ -27,16 +27,16 @@ class OrderStoreTest {
 
     @Test
     void shouldThrowExceptionForDuplicateOrder() {
-        subject.addOrder(1, 1);
-        subject.addOrder(2, 1);
+        subject.addOrderIdToProduct(1, 1);
+        subject.addOrderIdToProduct(2, 1);
 
-        assertThatThrownBy(() -> subject.addOrder(2, 2))
+        assertThatThrownBy(() -> subject.addOrderIdToProduct(2, 2))
                 .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void shouldGetOrder() {
-        subject.addOrder(4, 8);
+        subject.addOrderIdToProduct(4, 8);
 
         assertThat(subject.getProductId(4)).isEqualTo(8);
     }
