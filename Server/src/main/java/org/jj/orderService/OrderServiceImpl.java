@@ -107,10 +107,13 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
 
     @Override
     public void getOrders(Service.OrderIdList request, StreamObserver<Service.OrderList> responseObserver) {
+        LOGGER.info("getOrders Request received. OrderIdList size = {}", request.getIdList().size());
+
         List<Order> clientOrders = orderStore.getClientOrders(request.getIdList());
         Service.OrderList response = Service.OrderList.newBuilder().addAllOrders(clientOrders.stream().map(Order::toProto).toList())
                                                                    .build();
 
+        LOGGER.info("getOrder returning OrderList of size = {}", clientOrders.size());
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }

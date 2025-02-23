@@ -27,8 +27,8 @@ public class TradeMenu extends JFrame {
     private String selectedProductSymbol;
     private TopOfBookSubscriberImpl topOfBookSubscriber;
 
-    public TradeMenu(ClientProxy clientProxy) {
-        this.clientProxy = clientProxy;
+    public TradeMenu() {
+        this.clientProxy = ClientAccount.getInstance().getClientProxy();
         List<String> productSymbols = clientProxy.getTradingProductsList();
 
         setTitle("Trade Menu");
@@ -238,11 +238,8 @@ public class TradeMenu extends JFrame {
 
             double price = Double.parseDouble(priceField.getText());
             long quantity = Long.parseLong(quantityField.getText());
-            clientProxy.createOrder(productSymbol, buySell, price, quantity, expiry);
-
-            productQuantityOwned.setText(""); // TODO update with quantity owned
-            productQuantityOwned.revalidate();
-            productQuantityOwned.repaint();
+            int orderId = clientProxy.createOrder(productSymbol, buySell, price, quantity, expiry);
+            ClientAccount.getInstance().addOrderId(orderId);
 
             flashBackgroundColor(Color.GREEN);
         } else {

@@ -1,16 +1,12 @@
 package org.jj.Menus;
 
-import io.grpc.*;
 import net.miginfocom.swing.*;
-import org.jj.ClientProxy;
+import org.jj.ClientAccount;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ClientMain extends JFrame {
-    private static ClientProxy clientProxy;
-    private static final int PORT = 50051;
-
     ClientMain() {
         setTitle("🚀 Jensen's Exchange 🚀");
         setSize(1560, 800);
@@ -44,7 +40,7 @@ public class ClientMain extends JFrame {
         add(buttonPanel, "grow");
 
         tradeBtn.addActionListener(e -> {
-            new TradeMenu(clientProxy);
+            new TradeMenu();
             dispose();
         });
 
@@ -54,7 +50,7 @@ public class ClientMain extends JFrame {
         });
 
         ordersBtn.addActionListener(e -> {
-            new ViewOrdersMenu();
+            new OrdersMenu();
             dispose();
         });
 
@@ -117,8 +113,7 @@ public class ClientMain extends JFrame {
     }
 
     public static void main(String[] args) {
-        ManagedChannel channel = Grpc.newChannelBuilder(String.format("localhost:%d", PORT), InsecureChannelCredentials.create()).build();
-        clientProxy = new ClientProxy(channel);
+        new ClientAccount();
         SwingUtilities.invokeLater(ClientMain::new);
     }
 }
