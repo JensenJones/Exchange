@@ -12,6 +12,8 @@ import org.jj.providers.MatchingEngineProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
@@ -44,7 +46,7 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
                                                      Math.round(price * 1000),
                                                      buySell,
                                                      expiry);
-            Order order = new Order(orderId, quantity, price);
+            Order order = new Order(orderId, productSymbol, price, quantity, 0, buySell); // TODO adjust quantity filled
             orderStore.addOrderIdToProduct(orderId, productId);
             orderStore.addOrder(order);
 
@@ -103,4 +105,13 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
         });
     }
 
+    @Override
+    public void getOrders(Service.OrderIdList request, StreamObserver<Service.OrderList> responseObserver) {
+        List<Order> clientOrders = orderStore.getClientOrders(request.getIdList());
+        Service.OrderList response = Service.OrderList.newBuilder().addAllOrders(clientOrders.stream().map(Order::toProto).toList())
+                                                                   .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 }

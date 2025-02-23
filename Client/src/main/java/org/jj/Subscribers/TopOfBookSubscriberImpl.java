@@ -1,4 +1,7 @@
-package org.jj;
+package org.jj.Subscribers;
+
+import org.jj.ClientProxy;
+import org.jj.Service;
 
 public class TopOfBookSubscriberImpl implements TopOfBookSubscriber {
 

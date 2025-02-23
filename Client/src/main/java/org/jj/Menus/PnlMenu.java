@@ -1,6 +1,7 @@
-package org.jj;
+package org.jj.Menus;
 
 import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import java.awt.*;
 

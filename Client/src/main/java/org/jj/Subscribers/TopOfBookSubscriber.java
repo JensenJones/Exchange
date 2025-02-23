@@ -1,4 +1,6 @@
-package org.jj;
+package org.jj.Subscribers;
+
+import org.jj.Service;
 
 public interface TopOfBookSubscriber {
     void startSubscription(String symbol);

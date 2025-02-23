@@ -174,7 +174,7 @@
                         <image>registry.hub.docker.com/${env.DOCKER_USERNAME}/exchange:latest</image>
                     </to>
                     <container>
-                        <mainClass>Client.src.main.java.org.jj.ClientMain</mainClass>
+                        <mainClass>Client.src.main.java.org.jj.Menus.ClientMain</mainClass>
                     </container>
                 </configuration>
             </plugin>

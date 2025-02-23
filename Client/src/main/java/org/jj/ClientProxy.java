@@ -5,9 +5,11 @@ import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.jetbrains.annotations.NotNull;
+import org.jj.Subscribers.TopOfBookSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -71,6 +73,28 @@ public class ClientProxy {
         productOrderBookSubscriptionResponseObserver.onCompleted();
     }
 
+    public List<Order> getOrders(List<Integer> orderIdList) {
+        Service.OrderIdList request = Service.OrderIdList.newBuilder().addAllId(orderIdList).build();
+
+        List<Order> response;
+
+        try {
+            response = blockingStub.getOrders(request).getOrdersList().stream().map(protoOrder -> {
+                return new Order(protoOrder.getId(),
+                        protoOrder.getProductSymbol(),
+                        protoOrder.getPrice(),
+                        protoOrder.getQuantity(),
+                        protoOrder.getQuantityFilled(),
+                        BuySell.valueOf(protoOrder.getBuySell().toString()));
+            }).toList();
+        } catch (Exception e) {
+            response = new ArrayList<>();
+            LOGGER.error("Failed to create order: ", e);
+        }
+
+        return response;
+    }
+
     private static @NotNull StreamObserver<Service.OrderBook> getResponseObserver(TopOfBookSubscriber listener) {
         return new StreamObserver<Service.OrderBook>() {
             int messages = 0;
@@ -93,4 +117,6 @@ public class ClientProxy {
             }
         };
     }
+
+
 }

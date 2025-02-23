@@ -20,10 +20,27 @@ service OrderService {
     rpc OrderCancelRequest(google.protobuf.Int32Value) returns (google.protobuf.BoolValue) {}
     rpc GetTradingProduct(EmptyQuery) returns (TradingProductsList) {}
     rpc OrderBookSubscriptionService(google.protobuf.StringValue) returns (stream OrderBook) {}
+    rpc GetOrders(OrderIdList) returns (OrderList) {}
+}
+
+message OrderIdList {
+    repeated int32 id = 1;
+}
+
+message OrderList {
+    repeated Order orders = 1;
+}
+
+message Order {
+    int32 id = 1;
+    string product_symbol = 2;
+    double price = 3;
+    int64 quantity = 4;
+    int64 quantity_filled = 5;
+    BuySell buySell = 6;
 }
 
 message EmptyQuery {}
-
 
 message OrderCreateRequestDetails {
     string product_symbol = 1;

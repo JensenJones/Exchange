@@ -1,7 +1,8 @@
-package org.jj;
+package org.jj.Menus;
 
 import io.grpc.*;
 import net.miginfocom.swing.*;
+import org.jj.ClientProxy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -118,6 +119,6 @@ public class ClientMain extends JFrame {
     public static void main(String[] args) {
         ManagedChannel channel = Grpc.newChannelBuilder(String.format("localhost:%d", PORT), InsecureChannelCredentials.create()).build();
         clientProxy = new ClientProxy(channel);
-        SwingUtilities.invokeLater(() -> new ClientMain());
+        SwingUtilities.invokeLater(ClientMain::new);
     }
 }
