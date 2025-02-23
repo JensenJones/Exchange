@@ -47,7 +47,7 @@ public class ClientAccount {
             idToOrderMap.put(order.orderId(), order);
             orderIdSet.remove(order.orderId());
         });
-        return orders;
+        return (List<Order>) idToOrderMap.values();
     }
 
     public void addOrderId(int orderId) {
