@@ -59,7 +59,7 @@ public class ClientProxy {
     }
 
     public List<String> getTradingProductsList() {
-        return blockingStub.getTradingProduct(Service.EmptyQuery.newBuilder().build()).getSymbolsList();
+        return blockingStub.getTradingProductsRequest(Service.EmptyQuery.newBuilder().build()).getSymbolsList();
     }
 
     public void subscribeToProductOrderBook(String symbol, TopOfBookSubscriber listener) {
@@ -103,7 +103,7 @@ public class ClientProxy {
         List<Order> response;
 
         try {
-            response = blockingStub.getOrders(request).getOrdersList().stream().map(protoOrder -> {
+            response = blockingStub.getOrdersRequest(request).getOrdersList().stream().map(protoOrder -> {
                 return new Order(protoOrder.getId(),
                         protoOrder.getProductSymbol(),
                         protoOrder.getPrice(),

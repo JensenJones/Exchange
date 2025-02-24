@@ -9,8 +9,8 @@ import java.util.*;
 public class ClientAccount {
     private UUID uuid;
     private Map<Integer, Order> idToOrderMap = new HashMap<>();
-    private Set<Integer> orderIdSet = new HashSet<>();
-    private Map<String, Long> productQuantityOwned = new HashMap<>();
+    private Set<Integer> activeOrderIdSet = new HashSet<>();
+    private Map<String, Long> productQuantityOwned = new TreeMap<>();
     private static final ClientAccount instance = new ClientAccount();
     private static ClientProxy clientProxy;
     private static final int PORT = 50051;
@@ -42,15 +42,26 @@ public class ClientAccount {
     }
 
     public List<Order> getOrders() {
-        List<Order> orders = clientProxy.getOrders(orderIdSet);
+        List<Order> orders = clientProxy.getOrders(activeOrderIdSet);
         orders.stream().forEach(order -> {
             idToOrderMap.put(order.orderId(), order);
-            orderIdSet.remove(order.orderId());
+            if (order.quantityFilled() == order.quantity()) {
+                activeOrderIdSet.remove(order.orderId());
+            }
+            updateOwnedProducts(order.product(), order.quantityFilled());
         });
         return (List<Order>) idToOrderMap.values();
     }
 
+    private void updateOwnedProducts(String product, long quantityFilled) {
+        productQuantityOwned.compute(product, (key, value) -> (value == null) ? quantityFilled : quantityFilled + value);
+    }
+
     public void addOrderId(int orderId) {
-        orderIdSet.add(orderId);
+        activeOrderIdSet.add(orderId);
+    }
+
+    public Long getQuantityOwned(String product) {
+        return productQuantityOwned.get(product);
     }
 }

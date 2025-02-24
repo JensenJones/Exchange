@@ -233,19 +233,34 @@ public class TradeMenu extends JFrame {
 
         if (!priceField.getText().isEmpty() &&
             !quantityField.getText().isEmpty() &&
-            !Objects.equals(productSymbol, "") &&
+            !productSymbol.equals("") &&
             buySell != null) { // TODO on sell must check for ownership of stock
-
             double price = Double.parseDouble(priceField.getText());
             long quantity = Long.parseLong(quantityField.getText());
+
+            if (buySell.equals(BuySell.SELL) && ClientAccount.getInstance().getQuantityOwned(productSymbol) < quantity) {
+                flashBackgroundColor(Color.RED);
+                return;
+            }
+
             int orderId = clientProxy.createOrder(productSymbol, buySell, price, quantity, expiry);
             ClientAccount.getInstance().addOrderId(orderId);
+
+            ClientAccount.getInstance().getOrders();
+
+            setProductQuantityOwned(ClientAccount.getInstance().getQuantityOwned(productSymbol));
 
             flashBackgroundColor(Color.GREEN);
         } else {
             flashBackgroundColor(Color.RED);
         }
 
+    }
+
+    private void setProductQuantityOwned(Long quantity) {
+        productQuantityOwned.setText(String.valueOf(quantity)); // TODO update with quantity owned
+        productQuantityOwned.revalidate();
+        productQuantityOwned.repaint();
     }
 
     private void flashBackgroundColor(Color color) {
@@ -334,7 +349,7 @@ public class TradeMenu extends JFrame {
     }
 
     private void updateProductInfo() {
-        if (this.selectedProductSymbol == productDropdown.getSelectedItem()) {
+        if (selectedProductSymbol == productDropdown.getSelectedItem()) {
             return;
         }
 
@@ -342,14 +357,19 @@ public class TradeMenu extends JFrame {
             topOfBookSubscriber.unsubscribe();
         }
 
-        this.selectedProductSymbol = (String) productDropdown.getSelectedItem();
+        selectedProductSymbol = (String) productDropdown.getSelectedItem();
 
         selectedProductLabel.setText("Selected Product: " + selectedProductSymbol);
 
-        this.topOfBookSubscriber = new TopOfBookSubscriberImpl(clientProxy, selectedProductSymbol, this::fillOrderBookTable);
+        this.topOfBookSubscriber = new TopOfBookSubscriberImpl(clientProxy, selectedProductSymbol, this::onOrderBookChange);
     }
 
-    private void fillOrderBookTable(Service.OrderBook orderBook) {
+    private void onOrderBookChange(Service.OrderBook orderBook) {
+        updateOrderBookTable(orderBook);
+        setProductQuantityOwned(ClientAccount.getInstance().getQuantityOwned(selectedProductSymbol));
+    }
+
+    private static void updateOrderBookTable(Service.OrderBook orderBook) {
         DefaultTableModel tableModel = (DefaultTableModel) orderBookTable.getModel();
         tableModel.setRowCount(0);
 

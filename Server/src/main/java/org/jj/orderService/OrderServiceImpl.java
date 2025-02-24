@@ -74,7 +74,7 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
     }
 
     @Override
-    public void getTradingProduct(Service.EmptyQuery request, StreamObserver<Service.TradingProductsList> responseObserver) {
+    public void getTradingProductsRequest(Service.EmptyQuery request, StreamObserver<Service.TradingProductsList> responseObserver) {
         responseObserver.onNext(Service.TradingProductsList.newBuilder()
                                                            .addAllSymbols(matchingEngineProvider.getAllTradingProducts())
                                                            .build());
@@ -106,7 +106,7 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
     }
 
     @Override
-    public void getOrders(Service.OrderIdList request, StreamObserver<Service.OrderList> responseObserver) {
+    public void getOrdersRequest(Service.OrderIdList request, StreamObserver<Service.OrderList> responseObserver) {
         LOGGER.info("getOrders Request received. OrderIdList size = {}", request.getIdList().size());
 
         List<Order> clientOrders = orderStore.getClientOrders(request.getIdList());

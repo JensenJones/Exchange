@@ -18,9 +18,10 @@ enum Expiry {
 service OrderService {
     rpc OrderCreateRequest(OrderCreateRequestDetails) returns (google.protobuf.Int32Value) {}
     rpc OrderCancelRequest(google.protobuf.Int32Value) returns (google.protobuf.BoolValue) {}
-    rpc GetTradingProduct(EmptyQuery) returns (TradingProductsList) {}
+    rpc OrderStatusRequest(google.protobuf.Int32Value) returns (Order) {}
+    rpc GetTradingProductsRequest(EmptyQuery) returns (TradingProductsList) {}
     rpc OrderBookSubscriptionService(google.protobuf.StringValue) returns (stream OrderBook) {}
-    rpc GetOrders(OrderIdList) returns (OrderList) {}
+    rpc GetOrdersRequest(OrderIdList) returns (OrderList) {}
 }
 
 message OrderIdList {
