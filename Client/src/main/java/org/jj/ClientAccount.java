@@ -3,6 +3,8 @@ package org.jj;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -14,6 +16,7 @@ public class ClientAccount {
     private static final ClientAccount instance = new ClientAccount();
     private static ClientProxy clientProxy;
     private static final int PORT = 50051;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientAccount.class);
 
     public ClientAccount() {
         uuid = UUID.randomUUID();
@@ -42,6 +45,7 @@ public class ClientAccount {
     }
 
     public List<Order> getOrders() {
+        LOGGER.info("getOrders method called, active order count = {}", activeOrderIdSet.size());
         List<Order> orders = clientProxy.getOrders(activeOrderIdSet);
         orders.stream().forEach(order -> {
             idToOrderMap.put(order.orderId(), order);
@@ -50,7 +54,7 @@ public class ClientAccount {
             }
             updateOwnedProducts(order.product(), order.quantityFilled());
         });
-        return (List<Order>) idToOrderMap.values();
+        return new ArrayList<>(idToOrderMap.values());
     }
 
     private void updateOwnedProducts(String product, long quantityFilled) {
@@ -62,6 +66,7 @@ public class ClientAccount {
     }
 
     public Long getQuantityOwned(String product) {
+        getOrders();
         return productQuantityOwned.get(product);
     }
 }
