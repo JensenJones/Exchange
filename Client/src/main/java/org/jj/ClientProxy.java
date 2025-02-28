@@ -109,13 +109,13 @@ public class ClientProxy {
                         protoOrder.getPrice(),
                         protoOrder.getQuantity(),
                         protoOrder.getQuantityFilled(),
+                        Expiry.valueOf(protoOrder.getExpiry().toString()),
                         BuySell.valueOf(protoOrder.getBuySell().toString()));
             }).toList();
         } catch (Exception e) {
             response = new ArrayList<>();
             LOGGER.error("Failed to create order: ", e);
         }
-
         return response;
     }
 }

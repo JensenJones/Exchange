@@ -9,19 +9,14 @@ import java.awt.*;
 import java.util.List;
 
 public class OrderTablePanel extends JPanel {
-    private final List<Order> activeOrders;
-    private final List<Order> pastOrders;
 
     // Define dark theme colors
     private static final Color BACKGROUND_COLOR = new Color(30, 30, 30);
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color TABLE_HEADER_COLOR = new Color(35, 35, 35);
-    private static final Color TABLE_ROW_COLOR = new Color(44, 43, 43);
+    private static final Color TABLE_ROW_COLOR = new Color(45, 45, 45);
 
     public OrderTablePanel(List<Order> activeOrders, List<Order> pastOrders) {
-        this.activeOrders = activeOrders;
-        this.pastOrders = pastOrders;
-
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(BACKGROUND_COLOR);
 
@@ -88,6 +83,28 @@ public class OrderTablePanel extends JPanel {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.setDefaultRenderer(Object.class, centerRenderer);
+
+        // Custom renderer for Buy/Sell column
+        DefaultTableCellRenderer buySellRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel cell = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                String text = value.toString();
+
+                if (text.equalsIgnoreCase("Buy")) {
+                    cell.setForeground(Color.GREEN);
+                } else if (text.equalsIgnoreCase("Sell")) {
+                    cell.setForeground(Color.RED);
+                } else {
+                    cell.setForeground(TEXT_COLOR);
+                }
+
+                return cell;
+            }
+        };
+
+        // Apply custom renderer to the Buy/Sell column (index 6)
+        table.getColumnModel().getColumn(6).setCellRenderer(buySellRenderer);
 
         return table;
     }
