@@ -97,7 +97,7 @@ public class ClientProxy {
         };
     }
 
-    public List<Order> getOrders(Set<Integer> orderIdList) {
+    public List<Order> getOrders(final Set<Integer> orderIdList) {
         Service.OrderIdList request = Service.OrderIdList.newBuilder().addAllId(orderIdList).build();
 
         List<Order> response;

@@ -9,8 +9,8 @@ import java.awt.*;
 import java.util.List;
 
 public class OrderTablePanel extends JPanel {
-    private List<Order> activeOrders;
-    private List<Order> pastOrders;
+    private final List<Order> activeOrders;
+    private final List<Order> pastOrders;
 
     // Define dark theme colors
     private static final Color BACKGROUND_COLOR = new Color(30, 30, 30);
