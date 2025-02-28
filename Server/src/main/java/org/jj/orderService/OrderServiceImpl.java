@@ -47,7 +47,7 @@ public class OrderServiceImpl extends OrderServiceGrpc.OrderServiceImplBase {
                                                      buySell,
                                                      expiry);
 
-            Order order = new Order(orderId, productSymbol, price, quantity, 0, buySell); // TODO adjust quantity filled
+            Order order = new Order(orderId, productSymbol, price, quantity, 0, expiry, buySell); // TODO adjust quantity filled
             orderStore.addOrderIdToProduct(orderId, productId);
             orderStore.addOrder(order);
 

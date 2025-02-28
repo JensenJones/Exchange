@@ -38,7 +38,8 @@ message Order {
     double price = 3;
     int64 quantity = 4;
     int64 quantity_filled = 5;
-    BuySell buySell = 6;
+    Expiry expiry = 6;
+    BuySell buySell = 7;
 }
 
 message EmptyQuery {}

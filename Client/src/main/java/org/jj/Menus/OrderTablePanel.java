@@ -53,7 +53,7 @@ public class OrderTablePanel extends JPanel {
     }
 
     private JTable createOrderTable(List<Order> orders) {
-        String[] columnNames = {"Order ID", "Product", "Price", "Quantity", "Quantity Filled", "Buy/Sell"};
+        String[] columnNames = {"Order ID", "Product", "Price", "Quantity", "Quantity Filled", "Expiry Type", "Buy/Sell"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
         for (Order order : orders) {
@@ -63,6 +63,7 @@ public class OrderTablePanel extends JPanel {
                     order.price(),
                     order.quantity(),
                     order.quantityFilled(),
+                    order.expiry(),
                     order.buySell()
             });
         }
